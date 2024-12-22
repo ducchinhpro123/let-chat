@@ -1,0 +1,38 @@
+{
+  "name": "let-chat",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "author": "Vo Duc Chinh",
+  "license": "MIT",
+  "description": "",
+
+  "type": "module",
+
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "ejs": "3.1.10",
+    "express": "5.0.0",
+    "http-errors": "~1.6.3"
+  },
+  "devDependencies": {
+    "@socket.io/cluster-adapter": "^0.2.2",
+    "bcrypt": "^5.1.1",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^16.4.7",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.12.0",
+    "mongoose": "^8.8.4",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.7",
+    "sequelize": "^6.37.5",
+    "socket.io": "^4.8.1"
+  }
+}
