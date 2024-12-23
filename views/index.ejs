@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="user-profile">
+                <div class="profile-header">
+                    <h3>ducchinhpro123</h3>
+                    <div class="settings-dropdown">
+                        <button id="settings-btn" class="settings-btn">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <div class="dropdown-content" id="settingsDropdown">
+                            <a href="/profile">Profile</a>
+                            <form action="/users/logout" method="POST" class="logout-form">
+                                <button type="submit" class="logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-status">Active</div>
+            </div>
+
+            <div class="conversation-list">
+                <div class="conversation-item">
+                    <h4>Team Project Discussion</h4>
+                    <div class="last-message">Latest update on the project timeline</div>
+                </div>
+                <div class="conversation-item">
+                    <h4>Alice Johnson</h4>
+                    <div class="last-message">When is the next meeting?</div>
+                </div>
+                <div class="conversation-item">
+                    <h4>Development Team</h4>
+                    <div class="last-message">New deployment scheduled</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="main-chat">
+            <div class="chat-header">
+                <h2>Team Project Discussion</h2>
+            </div>
+            <div class="chat-messages">
+                <div class="message received">
+                    <div class="message-content">
+                        Hello, let's discuss the project timeline.
+                    </div>
+                    <div class="message-time">10:00 AM</div>
+                </div>
+                <div class="message sent">
+                    <div class="message-content">
+                        Sure, I've prepared the documentation for review.
+                    </div>
+                    <div class="message-time">10:02 AM</div>
+                </div>
+                <div class="message received">
+                    <div class="message-content">
+                        Great, please share it with the team.
+                    </div>
+                    <div class="message-time">10:03 AM</div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <div class="input-container">
+                    <textarea class="message-input" placeholder="Type a message..."></textarea>
+                    <button class="send-button">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const settingBtn = document.getElementById('settings-btn');
+        settingBtn.addEventListener('click', () => {
+            document.getElementById('settingsDropdown').classList.toggle('show');
+        });
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.settings-btn') && !event.target.matches('.settings-btn *')) {
+                const dropdowns = document.getElementsByClassName('dropdown-content');
+                for (let i = 0; i < dropdowns.length; i++) {
+                    const openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    })
+</script>
+</body>
+</html>

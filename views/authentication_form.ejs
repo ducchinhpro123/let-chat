@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application - Authentication</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h1 {
+            color: #212529;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            color: #6c757d;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #0d6efd;
+        }
+
+        .submit-button {
+            padding: 12px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .submit-button:hover {
+            background-color: #0b5ed7;
+        }
+
+        .auth-footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .auth-footer a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            color: #198754;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .requirements {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+            padding-left: 4px;
+        }
+
+        .requirements::before {
+            content: "ℹ"; 
+            margin-right: 5px;
+            color: #0d6efd;
+        }
+
+        .requirements.valid {
+            color: #198754;
+        }
+
+        .requirements.invalid {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="auth-container" id="login-container">
+        <div class="auth-header">
+            <h1>Welcome Back</h1>
+            <p>Please sign in to continue</p>
+        </div>
+        <form class="auth-form" id="login-form" action="/users/login" method="POST">
+            <div class="form-group">
+                <label for="login-username">Username</label>
+                <input 
+                    type="text" 
+                    id="login-username" 
+                    name="username"
+                    value="<%= locals.oldInput ? oldInput.username : '' %>"
+                    required 
+                    placeholder="Enter your username"
+                >
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input 
+                    type="password" 
+                    id="login-password" 
+                    name="password" 
+                    required 
+                    placeholder="Enter your password"
+                >
+            </div>
+            <% if (locals.message) { %>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= message %>
+                </div>
+            <% } %>
+            <button type="submit" class="submit-button">Sign In</button>
+
+        </form>
+        <div class="auth-footer">
+            Don't have an account? <a href="#" onclick="toggleForms()">Register</a>
+        </div>
+    </div>
+
+    <!-- Registration Page -->
+    <div class="auth-container" id="register-container" style="display: none;">
+        <div class="auth-header">
+            <h1>Create Account</h1>
+            <p>Please fill in the details to register</p>
+        </div>
+        <form class="auth-form" id="register-form" method="POST" action="/users/register">
+            <div class="form-group">
+                <label for="register-username">Username</label>
+                <input 
+                    type="text" 
+                    id="register-username" 
+                    name="username" 
+                    value="<%= locals.oldInput ? oldInput.username : '' %>"
+                    required 
+                    placeholder="Choose a username"
+                    pattern="[a-zA-Z0-9_]+"
+                    >
+                    <div class="requirements">
+                        3-30 characters, letters, numbers, and underscores only
+                    </div>
+            </div>
+            <div class="form-group">
+                <label for="register-password">Password</label>
+                <input 
+                    type="password" 
+                    id="register-password" 
+                    name="password" 
+                    minlength="6"
+                    required 
+                    placeholder="Create a password"
+                >
+            </div>
+            <div class="form-group">
+                <label for="register-confirm-password">Confirm Password</label>
+                <input 
+                    type="password" 
+                    id="register-confirm-password" 
+                    name="confirmPassword" 
+                    required 
+                    placeholder="Confirm your password"
+                    >
+
+                    <div class="requirements password">
+                        At least 6 characters
+                    </div>
+            </div>
+            <button type="submit" class="submit-button">Create Account</button>
+        </form>
+        <div class="auth-footer">
+            Already have an account? <a href="#" onclick="toggleForms()">Sign In</a>
+        </div>
+    </div>
+
+    <script>
+        const registerPasswordInput = document.getElementById('register-password');
+        const registerConfirmPasswordInput = document.getElementById('register-confirm-password');
+        const requirementsDiv = document.querySelector('.requirements.password');
+
+        registerPasswordInput.addEventListener('input', function() {
+            if (this.value.length >= 6) {
+                requirementsDiv.classList.add('valid');
+                requirementsDiv.classList.remove('invalid');
+            } else {
+                requirementsDiv.classList.remove('valid');
+                requirementsDiv.classList.add('invalid');
+            }
+        });
+
+        function toggleForms() {
+            const loginContainer = document.getElementById('login-container');
+            const registerContainer = document.getElementById('register-container');
+            
+            if (loginContainer.style.display === 'none') {
+                loginContainer.style.display = 'block';
+                registerContainer.style.display = 'none';
+            } else {
+                loginContainer.style.display = 'none';
+                registerContainer.style.display = 'block';
+            }
+        }
+
+    </script>
+</body>
+</html>

@@ -15,7 +15,6 @@ export function configServer(app) {
   server.on('error', onError);
   server.on('listening', onListening);
 
-  // runningSocket(server);
   initializeSocket(server);
 
   function normalizePort(val) {
