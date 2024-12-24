@@ -13,13 +13,19 @@
         <div class="sidebar">
             <div class="user-profile">
                 <div class="profile-header">
+                    <div class="avatar-container">
+                        <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=ducchinh" alt="Avatar" class="popup-avatar">
+                        <span class="status-indicator"></span>
+                    </div>
                     <h3>ducchinhpro123</h3>
                     <div class="settings-dropdown">
                         <button id="settings-btn" class="settings-btn">
                             <i class="fas fa-cog"></i>
                         </button>
+
                         <div class="dropdown-content" id="settingsDropdown">
-                            <a href="/profile">Profile</a>
+                            <a href="/profile">	<i class="fas fa-user-alt"></i> Profile</a>
+                            <button class="new-conversation-btn">new conversation</button>
                             <form action="/users/logout" method="POST" class="logout-form">
                                 <button type="submit" class="logout-btn">
                                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -28,7 +34,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="user-status">Active</div>
             </div>
 
             <div class="conversation-list">
@@ -53,30 +58,86 @@
                 <h2>Team Project Discussion</h2>
             </div>
             <div class="chat-messages">
+
+                <!-- receiver -->
                 <div class="message received">
-                    <div class="message-content">
-                        Hello, let's discuss the project timeline.
+                    <div class="message-avatar">
+                        <img src="https://ui-avatars.com/api/?name=ducchinhpro123" alt="avatar">
                     </div>
-                    <div class="message-time">10:00 AM</div>
+                    <div class="message-bubble">
+                        <div class="message-info">
+                            <span class="message-username">John Doe</span>
+                        </div>
+                        <div class="message-content">
+                            Hello, let's discuss the project timeline.
+                            <br>
+                            <span class="message-time">10:00 AM</span>
+                        </div>
+
+                    </div>
                 </div>
+
+                <!-- receiver -->
+                <div class="message received">
+                    <div class="message-avatar">
+                        <img src="https://ui-avatars.com/api/?name=ducchinhpro123" alt="avatar">
+                    </div>
+                    <div class="message-bubble">
+                        <div class="message-info">
+                            <span class="message-username">John Doe</span>
+                        </div>
+                        <div class="message-content">
+                            Hello, let's discuss the project timeline.
+                            <br>
+                            <span class="message-time">10:00 AM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- sender -->
                 <div class="message sent">
-                    <div class="message-content">
-                        Sure, I've prepared the documentation for review.
+                    <div class="message-bubble">
+                        <div class="message-info">
+                        </div>
+                        <div class="message-content">
+                            Sure, I've prepared the documentation for review.
+                            <br>
+                            <span class="message-time">10:00 AM</span>
+                        </div>
                     </div>
-                    <div class="message-time">10:02 AM</div>
-                </div>
-                <div class="message received">
-                    <div class="message-content">
-                        Great, please share it with the team.
-                    </div>
-                    <div class="message-time">10:03 AM</div>
                 </div>
             </div>
+
             <div class="chat-input">
                 <div class="input-container">
                     <textarea class="message-input" placeholder="Type a message..."></textarea>
                     <button class="send-button">Send</button>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for new conversation -->
+    <div id="newConversationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Conversation</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modalName">Modal name</label>
+                    <input type="text" id="modalName" placeholder="Enter modal name...">
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label for="isConversationPrivate">Is private?</label>
+                        <input type="checkbox" id="isConversationPrivate" name="isConversationPrivate">
+                    </div>
+                    <small class="form-hint">Click to mark this channel as private, other people can't search your channel</small>
+                </div>
+                <button class="confirm-new-conversation">Confirm</button>
             </div>
         </div>
     </div>
@@ -101,5 +162,9 @@
         }
     })
 </script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="main.js" type="module"></script>
+<script src="conversation_manager.js" type="module"></script>
 </body>
 </html>
