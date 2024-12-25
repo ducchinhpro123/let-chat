@@ -8,16 +8,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+    <!-- <input type="hidden" value="<%= user.username %>" id="username-hidden"> -->
+    <input type="hidden" value="<%= user.id %>" id="userid-hidden">
+
     <div class="chat-container">
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="user-profile">
                 <div class="profile-header">
                     <div class="avatar-container">
-                        <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=ducchinh" alt="Avatar" class="popup-avatar">
+                        <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=<%= user.username %>" alt="Avatar" class="popup-avatar">
                         <span class="status-indicator"></span>
                     </div>
-                    <h3>ducchinhpro123</h3>
+                    <h3 id="username"><%= user.username %></h3>
                     <div class="settings-dropdown">
                         <button id="settings-btn" class="settings-btn">
                             <i class="fas fa-cog"></i>
@@ -26,6 +29,7 @@
                         <div class="dropdown-content" id="settingsDropdown">
                             <a href="/profile">	<i class="fas fa-user-alt"></i> Profile</a>
                             <button class="new-conversation-btn">new conversation</button>
+                            <button class="announcement-btn"><i class="fas fa-bell"></i> Announcement</button>
                             <form action="/users/logout" method="POST" class="logout-form">
                                 <button type="submit" class="logout-btn">
                                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -37,81 +41,46 @@
             </div>
 
             <div class="conversation-list">
-                <div class="conversation-item">
-                    <h4>Team Project Discussion</h4>
-                    <div class="last-message">Latest update on the project timeline</div>
-                </div>
-                <div class="conversation-item">
-                    <h4>Alice Johnson</h4>
-                    <div class="last-message">When is the next meeting?</div>
-                </div>
-                <div class="conversation-item">
-                    <h4>Development Team</h4>
-                    <div class="last-message">New deployment scheduled</div>
-                </div>
             </div>
         </div>
 
         <!-- Main Chat Area -->
         <div class="main-chat">
-            <div class="chat-header">
-                <h2>Team Project Discussion</h2>
-            </div>
-            <div class="chat-messages">
-
-                <!-- receiver -->
-                <div class="message received">
-                    <div class="message-avatar">
-                        <img src="https://ui-avatars.com/api/?name=ducchinhpro123" alt="avatar">
-                    </div>
-                    <div class="message-bubble">
-                        <div class="message-info">
-                            <span class="message-username">John Doe</span>
-                        </div>
-                        <div class="message-content">
-                            Hello, let's discuss the project timeline.
-                            <br>
-                            <span class="message-time">10:00 AM</span>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- receiver -->
-                <div class="message received">
-                    <div class="message-avatar">
-                        <img src="https://ui-avatars.com/api/?name=ducchinhpro123" alt="avatar">
-                    </div>
-                    <div class="message-bubble">
-                        <div class="message-info">
-                            <span class="message-username">John Doe</span>
-                        </div>
-                        <div class="message-content">
-                            Hello, let's discuss the project timeline.
-                            <br>
-                            <span class="message-time">10:00 AM</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- sender -->
-                <div class="message sent">
-                    <div class="message-bubble">
-                        <div class="message-info">
-                        </div>
-                        <div class="message-content">
-                            Sure, I've prepared the documentation for review.
-                            <br>
-                            <span class="message-time">10:00 AM</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <div class="chat-header"> </div>
+            <div class="chat-messages"> </div>
             <div class="chat-input">
                 <div class="input-container">
                     <textarea class="message-input" placeholder="Type a message..."></textarea>
                     <button class="send-button">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Modal -->
+    <div class="modal" id="inviteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Invite Friends</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-friends">
+                    <input type="text" placeholder="Search friends..." id="friendSearch">
+                    <button class="perform-search-user">Search</button>
+                </div>
+                <div class="friends-list">
+                    <div class="friend-item">
+                        <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=<%= user.username %>" alt="Avatar" class="friend-avatar">
+                        <div class="friend-info">
+                            <div class="friend-name">username </div>
+                            <div class="friend-status">Status</div>
+                        </div>
+                        <button class="invite-friend-btn">
+                            Invite
+                        </button>
+                    </div>
+                    <!-- Friends will be populated here -->
                 </div>
             </div>
         </div>

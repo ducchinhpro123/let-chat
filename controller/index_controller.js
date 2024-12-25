@@ -1,6 +1,7 @@
 class IndexController {
   static async index(req, res) {
-    return res.render('index');
+    const user = req.user;
+    return res.render('index', { user: user });
   }
 }
 

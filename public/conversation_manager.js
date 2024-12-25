@@ -1,4 +1,5 @@
 import App from '/main.js';
+import ChatManager from '/chat_manager.js';
 
 class ConversationManager {
   constructor() {
@@ -31,7 +32,15 @@ class ConversationManager {
     `;
 
     conversationItem.addEventListener('click', () => {
-      this.handleSelectConversation(conversation);
+      this.socketManager.emit('here is conversation_id, give me my messages', conversation._id, (response) => {
+        if (response.status === 'ok') {
+          const chatManager = new ChatManager();
+          chatManager.renderChatArea(response.data.conversation, response.data.messages);
+        } else {
+          this.socketManager.showErrorToast(response.error);
+        }
+      });
+      // this.handleSelectConversation(conversation);
     });
 
     this.conversationList.appendChild(conversationItem);
@@ -39,7 +48,7 @@ class ConversationManager {
   }
 
   handleSelectConversation(conversation) {
-    console.log(conversation);
+    ChatManager.renderChatArea(conversation);
   }
 
   handleCreateNewConversation() {

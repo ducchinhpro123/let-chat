@@ -6,6 +6,10 @@ const userSchema = new Schema({
   status: { type: String, enum: ['online', 'offline'], default: 'offline'},
   createdAt: { type: Date, default: Date.now },
   contacts: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  friends: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 });
 
 export const User = mongoose.model('User', userSchema);
