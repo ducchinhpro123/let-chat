@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <!-- <input type="hidden" value="<%= user.username %>" id="username-hidden"> -->
+    <input type="hidden" value="<%= user.username %>" id="username-hidden">
     <input type="hidden" value="<%= user.id %>" id="userid-hidden">
 
     <div class="chat-container">
@@ -50,6 +50,16 @@
             <div class="conversations-loading"></div>
             <div class="chat-header"> </div>
             <div class="chat-messages"> </div>
+
+            <div class="typing-indicator">
+                <div class="typing-text"></div>
+                <div class="dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+
             <div class="chat-input">
                 <div class="input-container">
                     <textarea class="message-input" placeholder="Type a message..."></textarea>

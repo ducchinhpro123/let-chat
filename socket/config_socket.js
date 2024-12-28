@@ -431,6 +431,24 @@ export function initializeSocket(server) {
       }
     });
 
+    socket.on('stop typing', async (data, callback) => {
+      try {
+        socket.to(data.conversationId).emit('user stop typing');
+      } catch (e) {
+        console.error(e);
+        return callback({ status: 'error', error: e.message });
+      }
+    });
+
+    socket.on('typing', async (data, callback) => {
+      try {
+        socket.to(data.conversationId).emit('user typing', { username: data.username });
+      } catch (e) {
+        console.error(e);
+        return callback({ status: 'error', error: e.message });
+      }
+    });
+
     socket.on('I just sent a new message', async (data, callback) => {
       try {
         const { msg, conversation_id } = data;

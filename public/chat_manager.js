@@ -12,6 +12,10 @@ class ChatManager {
     this.sendBtn = document.querySelector('.send-button');
     this.handleSendMessage = this.handleSendMessage.bind(this);
     this.contextMenu = this.createContextMenu();
+    this.username = document.querySelector('#username-hidden').value;
+
+    this.typingIndicator = document.querySelector('.typing-indicator');
+    this.typingText = document.querySelector('.typing-text');
 
     this.friendSearch = new FriendSearch();
 
@@ -25,6 +29,9 @@ class ChatManager {
       }
     });
     this.setupEventListeners();
+    this.messageTypingIndicator();
+    this.userTyping();
+    this.userStopTyping();
   }
 
   createContextMenu() {
@@ -36,6 +43,51 @@ class ChatManager {
     return menu;
   }
 
+  hideUserTypingIndicator() {
+    this.typingIndicator.style.display = 'none';
+    this.typingText.innerHTML = ``;
+  }
+
+  displayUserTypingIndicator(username) {
+    this.typingIndicator.style.display = 'flex';
+    this.typingText.innerHTML = `${username} is typing`;
+  }
+
+  userStopTyping() {
+    this.socketManager.on('user stop typing', () => {
+      this.hideUserTypingIndicator();
+    });
+  }
+
+  userTyping() {
+    this.socketManager.on('user typing', (response) => {
+      console.log(response);
+      this.displayUserTypingIndicator(response.username);
+    });
+  }
+
+  messageTypingIndicator() {
+    let typingTimeout;
+
+    this.messageInput.addEventListener('input', () => {
+      if (!typingTimeout) {
+        this.socketManager.emit('typing', {
+          conversationId: this.chatHeader.dataset.id,
+          username: this.username,
+        });
+      }
+
+      clearTimeout(typingTimeout);
+
+      typingTimeout = setTimeout(() => {
+        this.socketManager.emit('stop typing', {
+          conversationId: this.chatHeader.dataset.id,
+        });
+        typingTimeout = null;
+      }, 1000);
+    });
+  }
+
   setupEventListeners() {
     this.sendBtn.addEventListener('click', this.handleSendMessage);
 
@@ -45,11 +97,10 @@ class ChatManager {
         this.handleSendMessage();
       }
     });
-  }
-
-  openModal() {
 
   }
+
+  openModal() { }
 
   getChatHeader(conversation) {
     return `
