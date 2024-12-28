@@ -32,7 +32,7 @@ export function initializeSocket(server) {
     } catch (e) {
       console.error(e);
       if (e.name === 'TokenExpiredError') {
-        socket.emit('redirect me to this url', '/users/login');
+        socket.emit('session_expired', '/users/login');
       }
       // next(e);
     }
@@ -125,19 +125,6 @@ export function initializeSocket(server) {
           return callback({ status: 'error', error: 'Conversation Id is invalid' });
         }
 
-        // const conversation = await Conversation.aggregate([
-        //     {
-        //         $match: {
-        //             _id: conversation_id,
-        //             'participants.user': socket.user._id // Ensure user is a participant
-        //         }
-        //     }, 
-        //     {
-        //         $project: {
-        //             membersCount: { $size: '$participants' }
-        //         }
-        //     }
-        // ]);
         const conversation = await Conversation.findOne({
             _id: conversation_id,
             'participants.user': socket.user._id // Ensure user is a participant
@@ -166,6 +153,10 @@ export function initializeSocket(server) {
             minute: '2-digit',
           }),
         }));
+
+        // Join to a conversation
+        socket.join(conversation_id);
+        console.log('socket rooms:', socket.rooms);
 
         return callback({ 
           status: 'ok', 
@@ -486,11 +477,14 @@ export function initializeSocket(server) {
           },
         }
 
-        conversation.participants.forEach(participant => {
-          if (participant.user._id.toString() !== socket.user._id.toString()) {
-            socket.to(participant.user.toString()).emit('new message', message);
-          }
-        });
+        // conversation.participants.forEach(participant => {
+        //   if (participant.user._id.toString() !== socket.user._id.toString()) {
+        //     socket.to(userSockets.get(participant.user._id.toString())).emit('new message', message);
+        //     // socket.to(participant.user.toString()).emit('new message', message);
+        //   }
+        // });
+
+        socket.to(conversation_id).emit('new message', { conversation: conversation, message: formattedMessage } );
 
         return callback({ 
           status: 'ok',  

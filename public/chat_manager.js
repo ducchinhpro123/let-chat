@@ -18,6 +18,12 @@ class ChatManager {
   }
 
   initialize() {
+    this.socketManager.on('new message', (data) => {
+      if (data.message) {
+        console.log(data.message);
+        this.appendMessage(data.message);
+      }
+    });
     this.setupEventListeners();
   }
 
@@ -46,7 +52,6 @@ class ChatManager {
   }
 
   getChatHeader(conversation) {
-    console.log(conversation);
     return `
               <div class="header-left">
                   <h2>${conversation.name}</h2>
@@ -214,7 +219,8 @@ class ChatManager {
       this.socketManager.emit('I just sent a new message', data, (response) => {
         if (response.status === 'ok') {
           this.appendMessage(response.message);
-        } else {
+        }
+        if (response.status === 'error') {
           this.socketManager.showErrorToast(response.error);
         }
       });
