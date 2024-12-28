@@ -7,6 +7,7 @@ export function checkAuthentication(req, res, next) {
   if (!token) {
     return next();
   }
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;

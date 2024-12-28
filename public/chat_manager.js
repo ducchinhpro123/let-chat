@@ -7,14 +7,27 @@ class ChatManager {
     this.chatMessages = document.querySelector('.chat-messages');
     this.chatHeader = document.querySelector('.chat-header');
     this.messageInput = document.querySelector('.message-input');
+    this.chatInput = document.querySelector('.chat-input');
     this.chatMessages = document.querySelector('.chat-messages');
     this.sendBtn = document.querySelector('.send-button');
     this.handleSendMessage = this.handleSendMessage.bind(this);
+    this.contextMenu = this.createContextMenu();
+
+    this.friendSearch = new FriendSearch();
 
   }
 
   initialize() {
     this.setupEventListeners();
+  }
+
+  createContextMenu() {
+    const menu = document.createElement('div');
+    menu.className = 'message-context-menu';
+    menu.style.display = 'none';
+    document.body.appendChild(menu);
+
+    return menu;
   }
 
   setupEventListeners() {
@@ -26,12 +39,52 @@ class ChatManager {
         this.handleSendMessage();
       }
     });
+  }
 
+  openModal() {
+
+  }
+
+  getChatHeader(conversation) {
+    console.log(conversation);
+    return `
+              <div class="header-left">
+                  <h2>${conversation.name}</h2>
+                  <span class="member-count">
+                    ${conversation.participants.length > 1 ? 
+                    `${conversation.participants.length} members` : 
+                    `${conversation.participants.length} member`
+                    }
+                  </span>
+              </div>
+              <div class="header-actions">
+                  <button class="btn-invite" title="Invite Members">
+                      <i class="fas fa-user-plus"></i>
+                  </button>
+                  <button class="btn-info" title="Conversation Info">
+                      <i class="fas fa-info-circle"></i>
+                  </button>
+              </div>
+    `;
+
+  }
+
+  handleOpenUserSearch() {
+    const inviteBtn = this.chatHeader.querySelector('.btn-invite');
+    inviteBtn.addEventListener('click', () => {
+      this.friendSearch.openModal();
+    });
   }
 
   renderChatArea(conversation, messages) {
     if (!messages || messages.length === 0) {
+      this.chatHeader.innerHTML = this.getChatHeader(conversation);
+      this.chatHeader.dataset.id = conversation._id;
+
+      this.handleOpenUserSearch(); // Modal
+
       const empty = document.createElement('div');
+
       empty.className = 'empty-chat-state';
       empty.innerHTML = `
             <div class="empty-chat-content">
@@ -45,36 +98,21 @@ class ChatManager {
                   month: 'long',
                   day: 'numeric'
                 })}</p>
-            </div>
-        `;
-      this.chatArea.appendChild(empty);
-      return;
-    }
+            </div> `;
 
-    this.chatMessages.innerHTML = '';
-    this.chatHeader.innerHTML = '';
+        this.chatArea.insertBefore(empty, this.chatInput);
+        // new FriendSearch(this.chatHeader);
+        return;
+      }
 
-    this.chatHeader.innerHTML = `
-              <div class="header-left">
-                  <h2>${conversation.name}</h2>
-                  <span class="member-count">${conversation.participants.length > 1 ? 'members' : 'member'}</span>
-              </div>
-              <div class="header-actions">
-                  <button class="btn-invite" title="Invite Members">
-                      <i class="fas fa-user-plus"></i>
-                  </button>
-                  <button class="btn-info" title="Conversation Info">
-                      <i class="fas fa-info-circle"></i>
-                  </button>
-              </div>
-    `;
-    this.chatHeader.dataset.id = conversation._id;
+      this.chatHeader.innerHTML = this.getChatHeader(conversation);
+      this.chatHeader.dataset.id = conversation._id;
 
-    messages.forEach(message => {
-      if (!message.isCurrentUser) {
-        const receiver = document.createElement('div');
-        receiver.className = 'message received';
-        receiver.innerHTML = `
+      messages.forEach(message => {
+        if (!message.isCurrentUser) {
+          const receiver = document.createElement('div');
+          receiver.className = 'message received';
+          receiver.innerHTML = `
                   <div class="message-avatar">
                       <img src="https://ui-avatars.com/api/?name=${message.sender.username}" alt="avatar">
                   </div>
@@ -87,14 +125,14 @@ class ChatManager {
                           <br>
                           <span class="message-time">${message.createdAt}</span>
                       </div>
-                  </div>
-      `;
-        this.chatMessages.appendChild(receiver);
+                  </div>`;
 
-      } else {
-        const sender = document.createElement('div');
-        sender.className = 'message sent';
-        sender.innerHTML = `
+          this.chatMessages.appendChild(receiver);
+
+        } else {
+          const sender = document.createElement('div');
+          sender.className = 'message sent';
+          sender.innerHTML = `
                   <div class="message-bubble">
                       <div class="message-info">
                       </div>
@@ -104,23 +142,29 @@ class ChatManager {
                           <span class="message-time">${message.createdAt}</span>
                       </div>
                   </div>
-      `;
+          `;
 
-        this.chatMessages.appendChild(sender);
+          this.chatMessages.appendChild(sender);
+        }
+        // this.handleHeaderChat();
+      });
+      this.handleOpenUserSearch(); // Modal
+      this.chatMessages.scrollTop  = this.chatMessages.scrollHeight;
+    }
+
+    // Append new message to messge container
+    appendMessage(message) {
+      const emptyChatState = document.querySelector('.empty-chat-state');
+      if (emptyChatState) {
+        emptyChatState.remove();
       }
-      // this.handleHeaderChat();
-      new FriendSearch();
-    });
-  }
 
-  // Append new message to messge container
-  appendMessage(message) {
-    const m = document.createElement('div');
-    const isCurrentUser = document.getElementById('username').innerHTML === message.sender.username;
-    if (isCurrentUser) {
-      const sender = document.createElement('div');
-      sender.className = 'message sent';
-      sender.innerHTML = `
+      const isCurrentUser = document.getElementById('username').innerHTML === message.sender.username;
+
+      if (isCurrentUser) {
+        const sender = document.createElement('div');
+        sender.className = 'message sent';
+        sender.innerHTML = `
                     <div class="message-bubble">
                         <div class="message-info">
                         </div>
@@ -132,12 +176,12 @@ class ChatManager {
                     </div>
         `;
 
-      this.chatMessages.appendChild(sender);
+        this.chatMessages.appendChild(sender);
 
-    } else {
-      const receiver = document.createElement('div');
-      receiver.className = 'message received';
-      receiver.innerHTML = `
+      } else {
+        const receiver = document.createElement('div');
+        receiver.className = 'message received';
+        receiver.innerHTML = `
                     <div class="message-avatar">
                         <img src="https://ui-avatars.com/api/?name=${message.sender.username}" alt="avatar">
                     </div>
@@ -152,30 +196,30 @@ class ChatManager {
                         </div>
                     </div>
         `;
-      this.chatMessages.appendChild(receiver);
-    }
-
-  }
-
-  handleSendMessage() {
-    const value = this.messageInput.value;
-    if (!value) {
-      return;
-    }
-    const data = {
-      msg: value,
-      conversation_id: this.chatHeader.dataset.id
-    };
-
-    this.socketManager.emit('I just sent a new message', data, (response) => {
-      if (response.status === 'ok') {
-        this.appendMessage(response.message);
-      } else {
-        this.socketManager.showErrorToast(response.error);
+        this.chatMessages.appendChild(receiver);
       }
-    });
-    this.messageInput.value = '';
-  }
+      this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+    }
+
+    handleSendMessage() {
+      const value = this.messageInput.value;
+      if (!value) {
+        return;
+      }
+      const data = {
+        msg: value,
+        conversation_id: this.chatHeader.dataset.id
+      };
+
+      this.socketManager.emit('I just sent a new message', data, (response) => {
+        if (response.status === 'ok') {
+          this.appendMessage(response.message);
+        } else {
+          this.socketManager.showErrorToast(response.error);
+        }
+      });
+      this.messageInput.value = '';
+    }
 }
 
 export default ChatManager;

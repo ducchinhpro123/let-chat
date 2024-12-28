@@ -55,9 +55,18 @@ class SocketManager {
       this.showErrorToast('disconnected');
     });
 
+    this.socket.on('One of you friend has added you to a conversation', (response) => {
+      console.log(response);
+    });
+
+    this.socket.on('friend request accepted', (response) => {
+      console.log(response);
+    });
+
     this.socket.on('redirect me to this url', (url) => {
+      console.log(url);
       window.location.href = url;
-    })
+    });
 
     const conversationManager = new ConversationManager();
     this.showLoadingState(conversationManager);
@@ -67,7 +76,7 @@ class SocketManager {
       this.showErrorToast('Request timed out. Server is taking too long to respond.');
     }, 10000);
 
-    this.socket.emit('give me my conversations', (response) => {
+    this.socket.emit('give me my conversations', '', (response) => {
       clearTimeout(timeoutId);
 
       if (response?.status === 'ok') {

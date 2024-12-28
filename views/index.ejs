@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Application</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/style/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
@@ -27,9 +27,10 @@
                         </button>
 
                         <div class="dropdown-content" id="settingsDropdown">
-                            <a href="/profile">	<i class="fas fa-user-alt"></i> Profile</a>
+                            <a href="/profile">	<i class="fas fa-user-alt"></i>Profile</a>
+                            <button class="announcement-btn"><i class="fas fa-bell"></i>Announcement</button>
+                            <button class="your-friend-btn"><i class="far fa-address-book"></i>Your friends</button>
                             <button class="new-conversation-btn">new conversation</button>
-                            <button class="announcement-btn"><i class="fas fa-bell"></i> Announcement</button>
                             <form action="/users/logout" method="POST" class="logout-form">
                                 <button type="submit" class="logout-btn">
                                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -46,6 +47,7 @@
 
         <!-- Main Chat Area -->
         <div class="main-chat">
+            <div class="conversations-loading"></div>
             <div class="chat-header"> </div>
             <div class="chat-messages"> </div>
             <div class="chat-input">
@@ -53,6 +55,35 @@
                     <textarea class="message-input" placeholder="Type a message..."></textarea>
                     <button class="send-button">Send</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Friends Modal -->
+    <div id="friendsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Your Friends</h2>
+                <button class="close-friends">&times;</button>
+            </div>
+            <div class="modal-search">
+                <input type="text" id="friendSearch" placeholder="Search friends...">
+            </div>
+            <div id="friendsList" class="friends-list">
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div id="announcementModal" class="modal">
+        <div class="modal-content">
+            <button class="close-ann">&times;</button>
+            <h2>Announcements</h2>
+            <div id="announcementList">
+                <div calssName="announcement-item ">
+                    <p>Invite</p>
+                </div>
+                <!-- Announcements will be dynamically added here -->
             </div>
         </div>
     </div>
@@ -91,7 +122,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>New Conversation</h2>
-                <span class="close-modal">&times;</span>
+                <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">

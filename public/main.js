@@ -1,5 +1,7 @@
 import SocketManager from '/socket_manager.js';
 import ChatManager from '/chat_manager.js';
+import AnnouncementManager from '/announcement_manager.js';
+import YourFriends from '/your_friends.js';
 
 
 class App {
@@ -9,8 +11,11 @@ class App {
     if (App.instance) {
       return App.instance;
     }
-    this.socketManager = new SocketManager();
     this.chatManager = null;
+    this.yourFriends = null;
+    this.socketManager = new SocketManager();
+    this.announcementManager = null;
+
     App.instance = this;
   }
 
@@ -25,6 +30,9 @@ class App {
     try {
       this.socketManager.initialize();
       this.chatManager = new ChatManager(this.socketManager);
+      this.announcementManager = new AnnouncementManager(this.socketManager);
+      this.yourFriends = new YourFriends(this.socketManager);
+
       this.chatManager.initialize();
 
     } catch (e) {
