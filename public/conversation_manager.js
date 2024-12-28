@@ -219,7 +219,6 @@ class ConversationManager {
   }
 
   handleSelectConversation(conversationId) {
-    console.log("clicked");
     if (!this.chatManager) {
       this.chatManager = new ChatManager();
     }

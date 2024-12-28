@@ -63,8 +63,7 @@ class SocketManager {
       console.log(response);
     });
 
-    this.socket.on('redirect me to this url', (url) => {
-      console.log(url);
+    this.socket.on('session_expired', (url) => {
       window.location.href = url;
     });
 
@@ -73,7 +72,7 @@ class SocketManager {
 
     const timeoutId = setTimeout(() => {
       this.hideLoadingState(conversationManager);
-      this.showErrorToast('Request timed out. Server is taking too long to respond.');
+      this.showErrorToast('Request timed out. Server is taking too long to respond. Please logout and login back');
     }, 10000);
 
     this.socket.emit('give me my conversations', '', (response) => {
