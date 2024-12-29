@@ -1,8 +1,12 @@
 import FriendSearch from '/friend_search.js';
+import App from '/main.js';
 
 class ChatManager {
   constructor(socketManager) {
-    this.socketManager = socketManager;
+    // this.socketManager = socketManager;
+
+    this.socketManager = App.getInstance().socketManager;
+
     this.chatArea = document.querySelector('.main-chat');
     this.chatMessages = document.querySelector('.chat-messages');
     this.chatHeader = document.querySelector('.chat-header');
@@ -11,14 +15,22 @@ class ChatManager {
     this.chatMessages = document.querySelector('.chat-messages');
     this.sendBtn = document.querySelector('.send-button');
     this.handleSendMessage = this.handleSendMessage.bind(this);
-    this.contextMenu = this.createContextMenu();
     this.username = document.querySelector('#username-hidden').value;
-
     this.typingIndicator = document.querySelector('.typing-indicator');
     this.typingText = document.querySelector('.typing-text');
 
+    this.selectedConversationId = this.chatHeader.dataset.id;
+
+    this.contextMenu = this.createContextMenu();
+  
     this.friendSearch = new FriendSearch();
 
+    this.handleContextMenu = this.handleContextMenu.bind(this);
+    this.hideContextMenu = this.hideContextMenu.bind(this);
+    this.handleContextMenuAction = this.handleContextMenuAction.bind(this);
+    this.removeNodeMessage = this.removeNodeMessage.bind(this);
+
+    document.addEventListener('click', this.hideContextMenu);
   }
 
   initialize() {
@@ -28,6 +40,13 @@ class ChatManager {
         this.appendMessage(data.message);
       }
     });
+
+    this.socketManager.on('remove message', (data) => {
+      if (data.messageId) {
+        this.removeNodeMessage(data.messageId);
+      }
+    });
+
     this.setupEventListeners();
     this.messageTypingIndicator();
     this.userTyping();
@@ -132,6 +151,70 @@ class ChatManager {
     });
   }
 
+  hideContextMenu() {
+    this.contextMenu.style.display = 'none';
+  }
+
+  removeNodeMessage(messageId) {
+    const selectedMsg = this.chatMessages.querySelector(`[data-id="${messageId}"]`);
+
+    selectedMsg.style.transition = 'opacity 0.3s ease';
+    selectedMsg.style.opacity = '0';
+
+    setTimeout(() => {
+      selectedMsg.remove();
+    }, 300);
+  }
+
+  async handleContextMenuAction(action, messageId, conversationId) {
+    if (!this.socketManager) {
+      console.error('socketManager is not initialized');
+      return;
+    }
+
+    switch (action) {
+      case 'delete': 
+        this.socketManager.emit('delete message',  { messageId, conversationId }, (response) => {
+          if (response.status === 'error') {
+            this.socketManager.showErrorToast(response.error);
+          }
+        });
+    }
+  }
+
+  handleContextMenu(e, messageId, conversationId) {
+    e.preventDefault();
+    const { clientX: mouseX, clientY: mouseY } = e;
+    this.contextMenu.style.display = 'block';
+
+    const menuWidth = this.contextMenu.offsetWidth;
+    const menuHeight = this.contextMenu.offsetHeight;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    const menuX = mouseX + menuWidth > windowWidth 
+      ? windowWidth - menuWidth - 5 : mouseX;
+
+    const menuY = mouseY + menuHeight > windowHeight 
+      ? windowHeight - menuHeight - 5 : mouseY;
+
+    this.contextMenu.style.left = `${menuX}px`;
+    this.contextMenu.style.top = `${menuY}px`;
+
+    this.contextMenu.innerHTML = `
+      <div class="menu-item delete" data-action="delete">
+        <i class="fas fa-trash"></i> Delete message
+      </div>
+    `;
+
+    this.contextMenu.querySelectorAll('.menu-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        const action = e.currentTarget.dataset.action;
+        this.handleContextMenuAction(action, messageId, conversationId);
+      });
+    });
+  }
+
   renderChatArea(conversation, messages) {
     if (!messages || messages.length === 0) {
       this.chatHeader.innerHTML = this.getChatHeader(conversation);
@@ -168,6 +251,7 @@ class ChatManager {
         if (!message.isCurrentUser) {
           const receiver = document.createElement('div');
           receiver.className = 'message received';
+          receiver.dataset.id = message._id;
           receiver.innerHTML = `
                   <div class="message-avatar">
                       <img src="https://ui-avatars.com/api/?name=${message.sender.username}" alt="avatar">
@@ -186,8 +270,10 @@ class ChatManager {
           this.chatMessages.appendChild(receiver);
 
         } else {
+          // You're the one who sends
           const sender = document.createElement('div');
           sender.className = 'message sent';
+          sender.dataset.id = message._id;
           sender.innerHTML = `
                   <div class="message-bubble">
                       <div class="message-info">
@@ -200,10 +286,17 @@ class ChatManager {
                   </div>
           `;
 
+          // Sender will be able to remove their message
+          sender.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.handleContextMenu(e, message._id, conversation._id);
+          });
+
           this.chatMessages.appendChild(sender);
         }
         // this.handleHeaderChat();
       });
+
       this.handleOpenUserSearch(); // Modal
       this.chatMessages.scrollTop  = this.chatMessages.scrollHeight;
     }
@@ -231,6 +324,10 @@ class ChatManager {
                         </div>
                     </div>
         `;
+        sender.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          this.handleContextMenu(e, message._id);
+        });
 
         this.chatMessages.appendChild(sender);
 
@@ -252,6 +349,7 @@ class ChatManager {
                         </div>
                     </div>
         `;
+
         this.chatMessages.appendChild(receiver);
       }
       this.chatMessages.scrollTop = this.chatMessages.scrollHeight;

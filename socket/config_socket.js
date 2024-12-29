@@ -119,6 +119,28 @@ export function initializeSocket(server) {
       }
     });
 
+    socket.on('delete message', async (data, callback) => {
+      try {
+        const { messageId, conversationId } = data;
+
+        if (!messageId || !conversationId) {
+          return callback({ status: 'error',  error: 'Message or conversation invalid' });
+        }
+
+        await Message.findByIdAndDelete(messageId);
+
+        console.log(data);
+        io.to(conversationId).emit('remove message', { messageId: messageId });
+
+        return callback({ status: 'ok' });
+
+      } catch (e) {
+        console.error(e);
+        return callback({ status: 'error', error: 'Internal Server Error' });
+      }
+
+    });
+
     socket.on('here is conversation_id, give me my messages', async (conversation_id, callback) => {
       try {
         if (!conversation_id) {
@@ -156,7 +178,6 @@ export function initializeSocket(server) {
 
         // Join to a conversation
         socket.join(conversation_id);
-        console.log('socket rooms:', socket.rooms);
 
         return callback({ 
           status: 'ok', 
