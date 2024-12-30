@@ -271,6 +271,10 @@ body {
 }
 
 .message-content {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
+    "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
     padding: 8px 12px;
     border-radius: 12px;
     background-color: #f1f5f9;
@@ -287,9 +291,21 @@ body {
     color: #ffffff;
 }
 
-.message.received + .message.received .message-avatar,
-.message.received + .message.received .message-username {
-    visibility: hidden;
+.message-btn, .more-options-btn {
+    background-color: #dcd2d2;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 20px;
+    color: #4b5563;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.message-btn:hover, .more-options-btn:hover {
+    background-color: #4b5563;
+    color: #dcd2d2;
+    transition: all 0.2s;
 }
 
 .message:hover .message-time {
@@ -712,14 +728,28 @@ label {
 
 .error-toast {
     position: fixed;
-    bottom: 120px;
+    top: -100px;
     right: 20px;
     background: #f04747;
     color: white;
     padding: 12px 20px;
     border-radius: 4px;
-    animation: slideIn 0.3s ease-out;
     z-index: 1000;
+    animation: slideDown 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.success-toast {
+    position: fixed;
+    top: -100px;
+    right: 20px;
+    background: green;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    z-index: 1000;
+    animation: slideDown 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 @keyframes slideIn {
@@ -733,16 +763,17 @@ label {
     }
 }
 
-.success-toast {
-    position: fixed;
-    bottom: 120px;
-    right: 20px;
-    background: green;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 4px;
-    animation: slideIn 0.3s ease-out;
-    z-index: 1000;
+@keyframes slideDown {
+    from {
+        top: -100px;
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        top: 20px;
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .empty-chat-state {
@@ -1142,12 +1173,69 @@ label {
 }
 
 .conversation-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.conversation-item:hover {
+    background-color: #f5f5f5;
+}
+
+.conversation-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+/* Private conversation styling */
+.conversation-item.private .conversation-icon {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.conversation-item.private h4 {
+    color: #2196f3;
+}
+
+/* Group conversation styling */
+.conversation-item.group .conversation-icon {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.conversation-item.group h4 {
+    color: #9c27b0;
+}
+
+.conversation-details {
+    flex: 1;
+}
+
+.conversation-details h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.last-message {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.last-message i {
+    font-size: 11px;
 }
 
 .conversation-content {
@@ -1171,9 +1259,14 @@ label {
 `;
 
 .close-friends {
-    font-size: 24px;
-    color: #666;
+    background-color: #dcd2d2;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 20px;
+    color: #4b5563;
     cursor: pointer;
+    transition: all 0.2s;
+    font-size: 24px;
     transition: color 0.2s;
 }
 
