@@ -1,35 +1,42 @@
+import ChatManager from '/chat_manager.js';
+// import ConversationManager from '/conversation_manager.js';
+
 class YourFriends {
-  constructor(socketManager) {
-    this.socketManager = socketManager;
-    this.modal = document.getElementById('friendsModal');
-    this.friendsList = document.getElementById('friendsList');
-    this.openBtn = document.querySelector('.your-friend-btn');
-    this.closeBtn = this.modal.querySelector('.close-friends');
+    constructor(socketManager) {
+        console.log('init yo8ur friendcA;');
+        this.socketManager = socketManager;
+        this.modal = document.getElementById('friendsModal');
+        this.friendsList = document.getElementById('friendsList');
+        this.openBtn = document.querySelector('.your-friend-btn');
+        this.closeBtn = this.modal.querySelector('.close-friends');
 
-    this.openModal = this.openModal.bind(this);
-    this.closeModal = this.closeModal.bind(this);
+        this.openModal = this.openModal.bind(this);
+        this.closeModal = this.closeModal.bind(this);
 
-    this.initialize();
-  }
+        this.chatManager = ChatManager.getInstance();
+        this.conversationManager = this.socketManager.conversationManager;
 
-  initialize() {
-    this.openBtn.addEventListener('click', this.openModal);
-    this.closeBtn.addEventListener('click', this.closeModal);
-    this.fetchFriend();
-  }
+        this.initialize();
+    }
 
-  renderFriendList(friends) {
-    if (friends.length === 0) {
-      this.friendsList.innerHTML = `
+    initialize() {
+        this.openBtn.addEventListener('click', this.openModal);
+        this.closeBtn.addEventListener('click', this.closeModal);
+        this.fetchFriend();
+    }
+
+    renderFriendList(friends) {
+        if (friends.length === 0) {
+            this.friendsList.innerHTML = `
                 <div class="empty-friends-list">
                     <i class="fas fa-users-slash"></i>
                     <p>No friends found</p>
                 </div>
             `;
-      return;
-    }
+            return;
+        }
 
-    this.friendsList.innerHTML = friends.map(friend => `
+        this.friendsList.innerHTML = friends.map(friend => `
             <div class="friend-item" data-id="${friend._id}">
                 <div class="friend-info">
                     <div class="friend-avatar">
@@ -48,27 +55,65 @@ class YourFriends {
                     </button>
                 </div>
             </div>
-        `).join('');
-  }
+        `
+        ).join('');
 
-  fetchFriend() {
-    this.socketManager.emit('give me the list of my friends', '', (response) => {
-      if (response.status === 'ok') {
-        this.renderFriendList(response.data);
-      } else {
-        this.socketManager.showErrorToast('Something went wrong while trying to fetch list of friends');
-      }
-    });
+        friends.forEach(friend => {
+            const msgFriendBtn = this.friendsList.querySelector(`.message-btn[data-id="${friend.recipient._id}"]`);
+            if (msgFriendBtn) {
+                msgFriendBtn.addEventListener('click', () => this.handleChatBtn(friend.recipient._id));
+            }
+        });
+    }
 
-  }
+    async getMessagesBetweenMeAndMyFriend(friendId) {
+        return new Promise((resolve, reject) => {
+            this.socketManager.emit('give me my conversation between my friend and I', {friendId}, (response) => {
+                if (response.status === 'ok') {
+                    resolve(response);
+                } else {
+                    this.socketManager.showErrorToast(response.error);
+                    reject(response.error);
+                }
+            });
+        })
+    }
 
-  closeModal() {
-    this.modal.style.display = 'none';
-  }
+    /* Render a conversation */
+    async renderChatArea(friendId) {
+        try {
+            const response = await this.getMessagesBetweenMeAndMyFriend(friendId);
+            this.closeModal();
+            this.chatManager.renderChatArea(response.conversation, response.messages);
+            if (this.conversationManager) {
+                this.conversationManager.appendNewConversation(response.conversation);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
 
-  openModal() {
-    this.modal.style.display = 'block';
-  }
+    async handleChatBtn(friendId) {
+        this.renderChatArea(friendId);
+    }
+
+    fetchFriend() {
+        this.socketManager.emit('give me the list of my friends', '', (response) => {
+            if (response.status === 'ok') {
+                this.renderFriendList(response.data);
+            } else {
+                this.socketManager.showErrorToast('Something went wrong while trying to fetch list of friends');
+            }
+        });
+    }
+
+    closeModal() {
+        this.modal.style.display = 'none';
+    }
+
+    openModal() {
+        this.modal.style.display = 'block';
+    }
 
 }
 
