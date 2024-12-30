@@ -65,6 +65,7 @@
                 <div class="input-container">
                     <textarea class="message-input" placeholder="Type a message..."></textarea>
                     <button class="send-button">Send</button>
+                    <button class="first-btn">Emoji Picker</button>
                 </div>
             </div>
         </div>
@@ -176,6 +177,24 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="main.js" type="module"></script>
+<script src="main.js" type="module"></script>
+
+<script src="vanillaEmojiPicker.js"></script>
+<script>
+
+    new EmojiPicker({
+        trigger: [
+            {
+                selector: '.first-btn',
+                insertInto: '.message-input' // '.selector' can be used without array
+            },
+        ],
+        closeButton: true,
+        //specialButtons: green
+    });
+
+</script>
+
 <script src="conversation_manager.js" type="module"></script>
 </body>
 </html>
