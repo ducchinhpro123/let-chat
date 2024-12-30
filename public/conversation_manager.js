@@ -71,8 +71,8 @@ class ConversationManager {
 
         if (conversationElement) {
             conversationElement.remove();
-            this.chatManager.this.chatMessages.innerHTML = '';
-            this.chatManager.this.chatHeader.innerHTML = '';
+            this.chatManager.chatMessages.innerHTML = '';
+            this.chatManager.chatHeader.innerHTML = '';
 
             if (this.conversationList.children.length === 0) {
                 this.socketManager.showEmptyState(this);
@@ -198,6 +198,10 @@ class ConversationManager {
         const conversationItem = document.createElement('div');
         conversationItem.className = 'conversation-item';
         conversationItem.dataset.id = conversation._id;
+
+        if (this.conversationList.querySelector(`.conversation-item[data-id="${conversation._id}"]`)) {
+            return;
+        }
 
         let formattedDateLatestMsg = 'No messages yet';
         if (conversation.latestMessage) {
