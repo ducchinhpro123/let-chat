@@ -5,45 +5,44 @@ import YourFriends from '/your_friends.js';
 
 
 class App {
-  static instance = null;
+    static instance = null;
 
-  constructor() {
-    if (App.instance) {
-      return App.instance;
+    constructor() {
+        if (App.instance) {
+            return App.instance;
+        }
+        this.chatManager = null;
+        this.yourFriends = null;
+        this.socketManager = new SocketManager();
+        this.announcementManager = null;
+
+        App.instance = this;
     }
-    this.chatManager = null;
-    this.yourFriends = null;
-    this.socketManager = new SocketManager();
-    this.announcementManager = null;
 
-    App.instance = this;
-  }
-
-  static getInstance() {
-    if (!App.instance) {
-      App.instance = new App();
+    static getInstance() {
+        if (!App.instance) {
+            App.instance = new App();
+        }
+        return App.instance;
     }
-    return App.instance;
-  }
 
-  initialize() {
-    try {
-      this.socketManager.initialize();
-      this.chatManager = new ChatManager(this.socketManager);
-      this.announcementManager = new AnnouncementManager(this.socketManager);
-      this.yourFriends = new YourFriends(this.socketManager);
+    initialize() {
+        try {
+            this.socketManager.initialize();
+            this.chatManager = new ChatManager(this.socketManager);
+            this.announcementManager = new AnnouncementManager(this.socketManager);
+            this.yourFriends = new YourFriends(this.socketManager);
+            this.chatManager.initialize();
 
-      this.chatManager.initialize();
-
-    } catch (e) {
-      console.error(e);
+        } catch (e) {
+            console.error(e);
+        }
     }
-  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const app = new App();
-  app.initialize();
+    const app = new App();
+    app.initialize();
 });
 
 export default App;
