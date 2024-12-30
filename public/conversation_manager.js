@@ -210,7 +210,7 @@ class ConversationManager {
             conversationItem.innerHTML = `
         <div class="conversation-item private">
             <div class="conversation-icon">
-                <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=${conversation.name}" alt="Avatar" class="popup-avatar">
+                <i class="fas fa-user"></i>
             </div>
             <div class="conversation-details">
                 <h4>${conversation.name}</h4>
