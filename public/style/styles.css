@@ -327,36 +327,108 @@ body {
 }
 
 .chat-input {
-    padding: 20px;
-    background-color: #ffffff;
-    border-top: 1px solid #dee2e6;
+    padding: 16px;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+    /* position: fixed; */
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
 }
 
 .input-container {
     display: flex;
-    gap: 10px;
+    align-items: flex-end; /* Aligns items to bottom if textarea grows */
+    gap: 8px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
 }
 
 .message-input {
-    flex-grow: 1;
-    padding: 12px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
+    flex: 1;
+    min-height: 40px;
+    max-height: 120px; /* Prevents textarea from growing too large */
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    /* resize: none; */
     font-size: 14px;
-    resize: none;
+    line-height: 1.4;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.message-input:focus {
+    border-color: #1976d2;
+}
+
+.send-button, .first-btn {
+    height: 40px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .send-button {
-    padding: 12px 24px;
-    background-color: #008C89;
+    background-color: #1976d2;
     color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
 }
 
 .send-button:hover {
-    background-color: #0b5ed7;
+    background-color: #1565c0;
+}
+
+.first-btn {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.first-btn:hover {
+    background-color: #e0e0e0;
+}
+
+/* Disable buttons when no text */
+.send-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Make it responsive */
+@media (max-width: 768px) {
+    .chat-input {
+        padding: 12px;
+    }
+
+    .input-container {
+        gap: 6px;
+    }
+
+    .message-input {
+        font-size: 16px; /* Better for mobile typing */
+    }
+
+    .send-button, .first-btn {
+        padding: 0 12px;
+    }
+}
+
+/* Optional: Add emoji button icon */
+.first-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.first-btn::before {
+    content: "😊"; /* Or use an icon font */
+    font-size: 16px;
 }
 
 .error-message {
