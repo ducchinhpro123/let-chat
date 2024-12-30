@@ -532,6 +532,7 @@ export function initializeSocket(server) {
         socket.on('I just sent a new message', async (data, callback) => {
             try {
                 const {msg, conversation_id} = data;
+                console.log(msg);
                 if (!msg || !conversation_id) {
                     return callback({
                         status: 'error',
@@ -549,9 +550,10 @@ export function initializeSocket(server) {
                     error: 'Conversation does not exist or you are not part of this conversation'
                 });
 
+                const formattedMsg = msg.replace(/\n/g, '<br>');
                 const message = new Message({
                     conversation: conversation_id,
-                    content: msg,
+                    content: formattedMsg,
                     sender: socket.user._id,
                     createdAt: new Date()
                 });
