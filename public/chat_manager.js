@@ -127,7 +127,6 @@ class ChatManager {
                 this.handleSendMessage();
             }
         });
-
     }
 
     getChatHeader(conversation) {
@@ -294,6 +293,7 @@ class ChatManager {
     }
 
     renderChatArea(conversation, messages) {
+        // this.chatArea
         if (this.chatArea.querySelector('.empty-chat-state')) {
             this.chatArea.querySelector('.empty-chat-state').remove();
         }
@@ -390,14 +390,17 @@ class ChatManager {
     }
 
     handleSendMessage() {
-        const value = this.messageInput.value;
-        if (!value) {
+        const content = tinymce.activeEditor.getContent();
+
+        if (!content) {
             return;
         }
+
         const data = {
-            msg: value,
+            msg: content,
             conversation_id: this.chatHeader.dataset.id
         };
+        console.log(data);
 
         this.socketManager.emit('I just sent a new message', data, (response) => {
             if (response.status === 'ok') {
@@ -407,7 +410,8 @@ class ChatManager {
                 this.socketManager.showErrorToast(response.error);
             }
         });
-        this.messageInput.value = '';
+        tinymce.activeEditor.setContent("");
+        editor.activeEditor.focus();
     }
 }
 
