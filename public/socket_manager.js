@@ -1,4 +1,5 @@
 import ConversationManager from '/conversation_manager.js';
+import AnnouncementManager from '/announcement_manager.js';
 
 class SocketManager {
     constructor() {
@@ -6,6 +7,7 @@ class SocketManager {
         this.events = {};
         this.userId = document.getElementById('userid-hidden').value;
         this.conversationManager = null;
+
         // this.conversationManager = ConversationManager.getInstance();
         // this.conversationManager = new ConversationManager(this);
     }
@@ -101,6 +103,10 @@ class SocketManager {
         });
 
         this.socket.on('someone sends you an invite', (data) => {
+            const announcementManager = AnnouncementManager.getInstance();
+            if (announcementManager) {
+                announcementManager.openModal();
+            };
             console.log(data);
         });
     }
