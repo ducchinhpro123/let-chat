@@ -254,8 +254,28 @@ class ConversationManager {
         this.conversationList.appendChild(conversationItem);
     }
 
+    removeWelcomeScreen() {
+        const welcomeScreen = this.chatManager.chatArea.querySelector('.welcome-screen');
+        if (welcomeScreen) {
+            welcomeScreen.remove();
+        }
+        this.displayInputArea();
+    }
+
+    displayInputArea() {
+        const inputArea = this.chatManager.chatInput;
+        if (inputArea) {
+            if (inputArea.style.display === 'block') {
+                return;
+            } else {
+                inputArea.style.display = 'block';
+            }
+        }
+    }
+
     handleSelectConversation(conversationId) {
         this.showLoadingState();
+        this.removeWelcomeScreen();
 
         const timeoutId = setTimeout(() => {
             this.hideLoadingState();
@@ -265,6 +285,8 @@ class ConversationManager {
             if (response.status === 'ok') {
                 clearTimeout(timeoutId);
                 this.hideLoadingState();
+                this.removeWelcomeScreen();
+                this.displayInputArea();
                 this.chatManager.renderChatArea(response.data.conversation, response.data.messages);
             } else {
                 this.socketManager.showErrorToast(response.error);
