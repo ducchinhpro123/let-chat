@@ -84,7 +84,9 @@ class YourFriends {
         try {
             const response = await this.getMessagesBetweenMeAndMyFriend(friendId);
             this.closeModal();
+            this.conversationManager.removeWelcomeScreen();
             this.chatManager.renderChatArea(response.conversation, response.messages);
+
             if (this.conversationManager) {
                 this.conversationManager.appendNewConversation(response.conversation);
             }
