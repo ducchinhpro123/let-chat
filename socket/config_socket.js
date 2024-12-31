@@ -230,6 +230,50 @@ export function initializeSocket(server) {
             }
         });
 
+        socket.on('I refuse to be a friend', async (data, callback) => {
+            try {
+                if (!data || !data._id) return callback({status: 'error', error: 'Invalid data'});
+
+                const annoucementId = data._id;
+                const refusingUser = socket.user._id;
+
+                const announcement = await FriendRelationship.findByIdAndUpdate(
+                    {
+                        _id: annoucementId,
+                        recipient: acceptingUser,
+                        status: 'pending'
+                    },
+                    {
+                        $set: {
+                            status: 'rejected',
+                            updatedAt: new Date(),
+                        },
+                    },
+                    {
+                        populate: [
+                            {
+                                path: 'requester',
+                                select: 'username'
+                            },
+                            {
+                                path: 'recipient',
+                                select: 'username'
+                            }
+                        ]
+                    }
+                );
+
+                if (!announcement) {
+                    return callback({status: 'error', error: 'Friend request not found or already processed'});
+                }
+
+                return callback({status: 'ok', message: `Rejected successfully`});
+                
+            } catch (e) {
+                console.log(e);
+            }
+        });
+
         socket.on('I accept to be a friend', async (data, callback) => {
             try {
                 if (!data || !data._id) {
@@ -288,7 +332,19 @@ export function initializeSocket(server) {
                 io.to(userSockets.get(announcement.requester._id))
                     .emit('friend request accepted', `${announcement.recipient.username} has accepted your friend request`);
 
-                return callback({status: 'ok', message: `You are now friend with ${announcement.requester.username}`});
+                const announcementsCount = await FriendRelationship.find(
+                    {
+                        recipient: acceptingUser,
+                        status: 'pending'
+                    }
+                ).countDocuments();
+
+                return callback({
+                    status: 'ok', 
+                    message: `You are now friend with ${announcement.requester.username}`,
+                    announcementCount: announcementsCount
+                });
+
             } catch (e) {
                 console.error(e);
                 return callback({status: 'error', message: e.message});
@@ -306,12 +362,16 @@ export function initializeSocket(server) {
                     return callback({status: 'error', message: 'Conversation does not exist'});
                 }
 
+                // Remove all messages assigned to this conversation.
+                await Message.deleteMany({ conversation: conversationId });
+                // Then remove conversation
                 await Conversation.deleteOne(conversation);
+
                 return callback({status: 'ok'});
 
             } catch (e) {
                 console.error(e);
-                return callback({status: 'error', message: e.message});
+                return callback({status: 'error', error: "Failed to delete conversation. Please try again."});
             }
         });
 
