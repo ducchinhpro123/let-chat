@@ -25,6 +25,8 @@ connectMongodb();
 // view engine setup
 app.set('views', join(__dirname, 'views'));
 
+app.use('/tinymce', express.static(join(__dirname, 'node_modules', 'tinymce')));
+
 app.use(session({
   secret: process.env.SESSION_SECRET, // Ensure SESSION_SECRET is set in your .env file
   resave: false,
@@ -43,6 +45,7 @@ app.use(logger('dev'));
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
+
 
 // app.use(authenticateToken);
 
@@ -66,6 +69,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
 
 configServer(app);
 

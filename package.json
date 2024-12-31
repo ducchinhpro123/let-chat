@@ -10,9 +10,7 @@
   "author": "Vo Duc Chinh",
   "license": "MIT",
   "description": "",
-
   "type": "module",
-
   "dependencies": {
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
@@ -33,6 +31,7 @@
     "morgan": "^1.10.0",
     "nodemon": "^3.1.7",
     "sequelize": "^6.37.5",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "tinymce": "^7.6.0"
   }
 }

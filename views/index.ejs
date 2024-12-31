@@ -29,7 +29,16 @@
 
                         <div class="dropdown-content" id="settingsDropdown">
                             <a href="/profile">	<i class="fas fa-user-alt"></i>Profile</a>
-                            <button class="announcement-btn"><i class="fas fa-bell"></i>Announcement</button>
+
+                            <!-- <button class="announcement-btn"><i class="fas fa-bell"></i>Announcement</button> -->
+                            <button class="announcement-btn">
+                                <div class="notification-wrapper">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="notification-badge" id="announcement-count"></span>
+                                </div>
+                                Announcement
+                            </button>
+
                             <button class="your-friend-btn"><i class="far fa-address-book"></i>Your friends</button>
                             <button class="new-conversation-btn">new conversation</button>
                             <form action="/users/logout" method="POST" class="logout-form">
@@ -48,10 +57,20 @@
 
         <!-- Main Chat Area -->
         <div class="main-chat">
+
+            <div class="welcome-screen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">💬</div>
+                    <h2>Welcome, ducchinhpro123</h2>
+                    <p>Select a conversation to start messaging</p>
+                    <div class="welcome-time">
+                        <span>12/12/24</span>
+                    </div>
+                </div>
+            </div>
             <div class="conversations-loading"></div>
             <div class="chat-header"> </div>
             <div class="chat-messages"> </div>
-
             <div class="typing-indicator">
                 <div class="typing-text"></div>
                 <div class="dots">
@@ -63,9 +82,9 @@
 
             <div class="chat-input">
                 <div class="input-container">
-                    <textarea class="message-input" placeholder="Type a message..."></textarea>
-                    <button class="send-button">Send</button>
-                    <button class="first-btn">Emoji Picker</button>
+                    <textarea class="message-input" placeholder="type a message..."></textarea>
+                    <button class="send-button">send</button>
+                    <!-- <button class="first-btn">emoji picker</button> -->
                 </div>
             </div>
         </div>
@@ -176,25 +195,27 @@
 </script>
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="main.js" type="module"></script>
-<script src="main.js" type="module"></script>
+<script  src="main.js" type="module"></script>
+<script  src="main.js" type="module"></script>
+<script  src="conversation_manager.js" type="module"></script>
 
-<script src="vanillaEmojiPicker.js"></script>
+<script  src= "/tinymce/tinymce.min.js"></script>
+<script  src= "/javascripts/my-tinymce-config.js"></script>
+
+<!-- <script src="vanillaEmojiPicker.js"></script> -->
+
 <script>
+    const clockElement = document.querySelector('.welcome-time');
+    function updateClock() {
+        if (clockElement) {
+            clockElement.innerHTML = new Date().toLocaleTimeString();
+        }
+    }
 
-    new EmojiPicker({
-        trigger: [
-            {
-                selector: '.first-btn',
-                insertInto: '.message-input' // '.selector' can be used without array
-            },
-        ],
-        closeButton: true,
-        //specialButtons: green
-    });
-
+    setInterval(() => {
+        updateClock();
+    }, 1000);
 </script>
 
-<script src="conversation_manager.js" type="module"></script>
 </body>
 </html>
