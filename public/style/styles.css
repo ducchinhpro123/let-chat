@@ -1,3 +1,8 @@
+:root {
+    /* I copied from github */ 
+    --shadow-floating-small: 0px 0px 0px 1px #3d444d, 0px 6px 12px -3px #01040966, 0px 6px 18px 0px #01040966;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -215,7 +220,7 @@ body {
     flex-grow: 1;
     padding: 20px;
     overflow-y: auto;
-    background-color: #ffffff;
+    background-color: #EFF3EA;
 }
 
 .message {
@@ -277,18 +282,17 @@ body {
     line-height: 1.5;
     padding: 8px 12px;
     border-radius: 12px;
-    background-color: #f1f5f9;
-    color: #334155;
 }
 
 .message.received .message-content {
-    background-color: #D0F0E6;
-    color: #212529;
+    background-color: #ffffff;
+    /* color: #212529; */
+    border: 1px solid rgba(39, 55, 77, 0.3); 
 }
 
 .message.sent .message-content {
-    background-color: #008C89 ;
-    color: #ffffff;
+    background-color: #DDE6ED;
+    border: 1px solid rgba(39, 55, 77, 0.3); 
 }
 
 .message-btn, .more-options-btn {
@@ -318,7 +322,7 @@ body {
 
 .message.sent .message-time {
     font-size: 11px;
-    color: #D0F0E6;
+    /* color: #D0F0E6; */
 }
 
 .message.received .message-time {
@@ -330,6 +334,7 @@ body {
     padding: 16px;
     background: #fff;
     border-top: 1px solid #e0e0e0;
+    display: none;
     /* position: fixed; */
     bottom: 0;
     width: 100%;
@@ -364,7 +369,7 @@ body {
 }
 
 .send-button, .first-btn {
-    height: 40px;
+    height: 60px;
     padding: 0 16px;
     border: none;
     border-radius: 20px;
@@ -527,18 +532,57 @@ body {
 .dropdown-content.show {
     display: block;
 }
+
 .announcement-btn {
-    width: 100%;
-    padding: 12px 16px;
-    background: none;
-    border: none;
-    text-align: left;
-    font-size: 14px;
-    color: #212529;
-    cursor: pointer;
+    position: relative;
     display: flex;
     align-items: center;
-    transition: background-color 0.2s;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #fff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.notification-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff4444;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    height: 18px;
+    min-width: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    padding: 0 5px;
+    border: 2px solid #fff;
+}
+
+/* Hide badge when count is 0 */
+.notification-badge[data-count="0"] {
+    display: none;
+}
+
+/* Animation for new notifications */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.notification-badge.new {
+    animation: pulse 0.5s ease-in-out;
 }
 
 .new-conversation-btn {
@@ -560,6 +604,7 @@ body {
     background-color: #f8f9fa;
     color: #0d6efd;
 }
+
 .announcement-btn:hover {
     background-color: #f8f9fa;
     color: #0d6efd;
@@ -1116,8 +1161,9 @@ label {
 .close-ann {
     color: #aaa;
     float: right;
-    font-size: 28px;
+    font-size: 22px;
     font-weight: bold;
+    border-radius: 25%;
 }
 
 .close {
@@ -1512,7 +1558,7 @@ label {
   height: 4px;
   background-color: #666;
   border-radius: 50%;
-  animation: bounce 1.4s infinite;
+  animation: bounce-typing 1.4s infinite;
 }
 
 .dots span:nth-child(2) {
@@ -1523,11 +1569,81 @@ label {
   animation-delay: 0.4s;
 }
 
-@keyframes bounce {
+@keyframes bounce-typing {
   0%, 60%, 100% {
     transform: translateY(0);
   }
   30% {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
   }
+}
+
+.welcome-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.welcome-content {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    max-width: 400px;
+    width: 90%;
+}
+
+.welcome-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: bounce 2s infinite;
+}
+
+.welcome-content h2 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.welcome-content p {
+    color: #7f8c8d;
+    margin-bottom: 1.5rem;
+}
+
+.welcome-time {
+    font-size: 0.9rem;
+    color: #95a5a6;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-20px);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+}
+
+
+/* Ensure chat elements are hidden when no conversation is selected */
+/* .main-chat:not(.conversation-selected) .chat-header, */
+/* .main-chat:not(.conversation-selected) .chat-messages, */
+/* .main-chat:not(.conversation-selected) .chat-input, */
+/* .main-chat:not(.conversation-selected) .typing-indicator { */
+/*     display: none; */
+/* } */
+
+.tox.tox-tinymce {
+    width: 100% !important; /* Force full width */
 }
