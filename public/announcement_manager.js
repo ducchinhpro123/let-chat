@@ -3,7 +3,7 @@ class AnnouncementManager {
         this.openBtn = document.querySelector('.announcement-btn');
         this.closeBtn = document.querySelector('.close-ann');
         this.socketManager = socketManager;
-        this.anns = null;
+        this.announcements = null;
 
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
@@ -17,7 +17,7 @@ class AnnouncementManager {
 
         this.socketManager.emit('give me my announcements', '', (response) => {
             if (response.status === 'ok') {
-                this.anns = response.data;
+                this.announcements = response.data;
             }
         });
     }
@@ -39,8 +39,8 @@ class AnnouncementManager {
         const announcements = document.querySelector('#announcementList');
         announcements.innerHTML = '';
 
-        if (this.anns && this.anns.length > 0) {
-            this.anns.forEach(ann => {
+        if (this.announcements && this.announcements.length > 0) {
+            this.announcements.forEach(ann => {
                 const modalItem = document.createElement('div');
                 modalItem.className = 'announcement-item';
                 modalItem.innerHTML = `
