@@ -3,9 +3,14 @@ import DateTimeFormatter from '/date_time_formatter.js';
 import ChatManager from '/chat_manager.js';
 
 class ConversationManager {
+    // static instance = null;
 
     constructor() {
         console.log('init conversation manager');
+        // if (ConversationManager.instance) {
+        //     return ConversationManager.instance;
+        // }
+
         this.newConversationBtn = document.querySelector('.new-conversation-btn');
         this.newConversationModal = document.getElementById('newConversationModal');
         this.closeBtn = this.newConversationModal.querySelector('.close-modal');
@@ -169,7 +174,9 @@ class ConversationManager {
     }
 
     showLoadingState() {
+        this.chatManager.chatMessages.classList.remove('padding-20px');
         const loading = document.querySelector('.conversations-loading');
+
         if (loading) {
             loading.style.height = '100vh';
             loading.innerHTML = `
@@ -262,38 +269,6 @@ class ConversationManager {
         // this.displayInputArea();
     }
 
-    displayInputArea() {
-        console.log('displayInputArea get called');
-        const inputArea = this.chatManager.chatInput;
-        if (!this.chatManager.editor) {
-            const container = document.querySelector('.input-container');
-
-            this.chatManager.editor = HREditor.init(container);
-            this.chatManager.messageTypingIndicator();
-            this.chatManager.setupEventListeners();
-
-            // new EmojiPicker({
-            //     trigger: [
-            //         {
-            //             selector: '.first-btn',
-            //             insertInto: '.hr-editor',
-            //         },
-            //     ],
-            //     closeButton: true,
-            //     specialButtons: 'green', // #008000, rgba(0, 128, 0);
-
-            // });
-        }
-
-        if (inputArea) {
-            if (inputArea.style.display === 'block') {
-                return;
-            } else {
-                inputArea.style.display = 'block';
-            }
-        }
-    }
-
     handleSelectConversation(conversationId) {
         this.chatManager.removeChatArea();
         this.showLoadingState();
@@ -308,7 +283,6 @@ class ConversationManager {
                 clearTimeout(timeoutId);
                 this.hideLoadingState();
                 this.removeWelcomeScreen();
-                this.displayInputArea();
                 this.chatManager.renderChatArea(response.data.conversation, response.data.messages);
             } else {
                 this.socketManager.showErrorToast(response.error);

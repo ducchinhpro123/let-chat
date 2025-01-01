@@ -20,7 +20,6 @@ class ChatManager {
         this.messageInput = null;
         this.editor = null;
         this.chatInput = document.querySelector('.chat-input');
-        this.chatMessages = document.querySelector('.chat-messages');
         this.sendBtn = document.querySelector('.send-button');
         this.handleSendMessage = this.handleSendMessage.bind(this);
         this.username = document.querySelector('#username-hidden').value;
@@ -313,6 +312,37 @@ class ChatManager {
         }
     }
 
+    renderInputArea() {
+        console.log('displayInputArea get called');
+        // const inputArea = this.chatManager.chatInput;
+        if (!this.editor) {
+            const container = document.querySelector('.input-container');
+            this.editor = HREditor.init(container);
+            this.messageTypingIndicator();
+            this.setupEventListeners();
+
+            // new EmojiPicker({
+            //     trigger: [
+            //         {
+            //             selector: '.first-btn',
+            //             insertInto: '.hr-editor',
+            //         },
+            //     ],
+            //     closeButton: true,
+            //     specialButtons: 'green', // #008000, rgba(0, 128, 0);
+
+            // });
+        }
+
+        if (this.chatInput) {
+            if (this.chatInput.style.display === 'block') {
+                return;
+            } else {
+                this.chatInput.style.display = 'block';
+            }
+        }
+    }
+
     renderChatArea(conversation, messages) {
         // this.chatArea
         this.removeChatArea();
@@ -334,6 +364,8 @@ class ChatManager {
         this.chatHeader.innerHTML = this.getChatHeader(conversation);
         this.chatHeader.dataset.id = conversation._id;
 
+        this.chatMessages.classList.add('padding-20px');
+
         messages.forEach((message, index) => {
             if (!message.isCurrentUser) {
                 this.chatMessages.appendChild(this.getReceiverSendMessage(message, messages[index - 1]));
@@ -344,6 +376,7 @@ class ChatManager {
 
         this.handleOpenUserSearch(); // Modal
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+        this.renderInputArea();
     }
 
     // Append new message to messge container
@@ -353,7 +386,7 @@ class ChatManager {
             emptyChatState.remove();
         }
 
-        const isCurrentUser = document.getElementById('username').innerHTML === message.sender.username;
+        const isCurrentUser = document.getElementById('username').innerHTML.trim() === message.sender.username.trim();
 
         if (isCurrentUser) {
             const sender = document.createElement('div');
