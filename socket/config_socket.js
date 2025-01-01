@@ -202,11 +202,11 @@ export function initializeSocket(server) {
                 const friendsList = await FriendRelationship.find({
                     $and: [
                         {status: 'accepted'},
-                        {
-                            $or: [
-                                {requester: socket.user._id}
-                            ]
-                        }
+                        // {
+                        //     $or: [
+                        //         {requester: socket.user._id}
+                        //     ]
+                        // }
                     ],
                 }).populate([
                     {
@@ -220,7 +220,7 @@ export function initializeSocket(server) {
                 ]).sort({updatedAt: -1}).lean();
 
                 if (!friendsList) {
-                    return callback({status: 'error', error: 'Socket user id is null'});
+                    return callback({status: 'error', error: 'Socket user id is null', data: []});
                 }
                 return callback({status: 'ok', data: friendsList});
 
@@ -267,7 +267,11 @@ export function initializeSocket(server) {
                     return callback({status: 'error', error: 'Friend request not found or already processed'});
                 }
 
-                return callback({status: 'ok', message: `Rejected successfully`});
+                return callback({
+                    status: 'ok', 
+                    message: `Rejected successfully`,
+                    announcementId: announcement._id
+                });
                 
             } catch (e) {
                 console.log(e);
@@ -281,7 +285,7 @@ export function initializeSocket(server) {
                 }
 
                 const annoucementId = data._id;
-                const acceptingUser = socket.user._id;
+                const acceptingUser = socket.user._id; // Current User
 
                 const announcement = await FriendRelationship.findByIdAndUpdate(
                     {
@@ -313,6 +317,8 @@ export function initializeSocket(server) {
                     return callback({status: 'error', error: 'Friend request not found or already processed'});
                 }
 
+                console.log(announcement);
+
                 await Promise.all([
                     User.findByIdAndUpdate(
                         announcement.requester._id,
@@ -342,6 +348,7 @@ export function initializeSocket(server) {
                 return callback({
                     status: 'ok', 
                     message: `You are now friend with ${announcement.requester.username}`,
+                    announcementId: announcement._id,
                     announcementCount: announcementsCount
                 });
 
@@ -377,9 +384,9 @@ export function initializeSocket(server) {
 
         socket.on('give me my announcements', async (data, callback) => {
             try {
-
                 const announcements = await FriendRelationship.find({
                     recipient: socket.user._id,
+                    status: 'pending',
                 }).populate('requester', 'username')
                     .populate('recipient', 'username')
                     .sort({createdAt: -1}).lean();
@@ -576,10 +583,24 @@ export function initializeSocket(server) {
                      conversation: conversation._id,
                 }).populate('sender', 'username').sort({createdAt: 1}).limit(50);
 
+                const formattedMessages = messages.map(message => ({
+                    _id: message._id,
+                    content: message.content,
+                    sender: {
+                        _id: message.sender._id,
+                        username: message.sender.username
+                    },
+                    isCurrentUser: message.sender._id.toString() === socket.user._id.toString(),
+                    createdAt: new Date(message.createdAt).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    }),
+                }));
+
                 return callback({
                     status: 'ok',
                     conversation: conversation,
-                    messages: messages,
+                    messages: formattedMessages,
                     hasMore: messages.length === 50
                 });
 
