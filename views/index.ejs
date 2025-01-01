@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Application</title>
     <link rel="stylesheet" href="/style/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/style/hr-editor.css">
+
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>"  >
 </head>
 <body>
@@ -82,7 +86,6 @@
 
             <div class="chat-input">
                 <div class="input-container">
-                    <textarea class="message-input" placeholder="type a message..."></textarea>
                     <button class="send-button">send</button>
                     <!-- <button class="first-btn">emoji picker</button> -->
                 </div>
@@ -199,9 +202,6 @@
 <script  src="main.js" type="module"></script>
 <script  src="conversation_manager.js" type="module"></script>
 
-<script  src= "/tinymce/tinymce.min.js"></script>
-<script  src= "/javascripts/my-tinymce-config.js"></script>
-
 <!-- <script src="vanillaEmojiPicker.js"></script> -->
 
 <script>
@@ -216,6 +216,30 @@
         updateClock();
     }, 1000);
 </script>
+
+
+<script type="application/javascript" src="/javascripts/hr-editor.js"></script>
+<script type="application/javascript" src="/javascripts/vanillaEmojiPicker.js"></script>
+
+<!-- <script> -->
+<!--     console.log('init emojii'); -->
+<!--     const container = document.querySelector('.hr-editor'); -->
+
+<!--     new EmojiPicker({ -->
+<!--         trigger: [ -->
+<!--             { -->
+<!--                 selector: '.first-btn', -->
+<!--                 insertInto: null -->
+<!--             }, -->
+<!--         ], -->
+<!--         closeButton: true, -->
+<!--         specialButtons: 'green', // #008000, rgba(0, 128, 0); -->
+<!--         onEmojiSelect: (emoji) => { -->
+<!--             console.log('onEmojiSelect'); -->
+<!--             console.log(emoji); -->
+<!--         } -->
+<!--     }); -->
+<!-- </script> -->
 
 </body>
 </html>
