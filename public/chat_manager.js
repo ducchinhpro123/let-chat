@@ -411,7 +411,7 @@ class ChatManager {
             }
         });
         tinymce.activeEditor.setContent("");
-        editor.activeEditor.focus();
+        tinymce.activeEditor.focus();
     }
 }
 
