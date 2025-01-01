@@ -2,7 +2,7 @@ import ChatManager from '/chat_manager.js';
 // import ConversationManager from '/conversation_manager.js';
 
 class YourFriends {
-    constructor(socketManager) {
+    constructor(socketManager, conversationManager) {
         console.log('init yo8ur friendcA;');
         this.socketManager = socketManager;
         this.modal = document.getElementById('friendsModal');
@@ -101,6 +101,7 @@ class YourFriends {
 
     fetchFriend() {
         this.socketManager.emit('give me the list of my friends', '', (response) => {
+            console.log(response);
             if (response.status === 'ok') {
                 this.renderFriendList(response.data);
             } else {
