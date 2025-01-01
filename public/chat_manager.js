@@ -16,7 +16,9 @@ class ChatManager {
         this.chatArea = document.querySelector('.main-chat');
         this.chatMessages = document.querySelector('.chat-messages');
         this.chatHeader = document.querySelector('.chat-header');
-        this.messageInput = document.querySelector('.message-input');
+        // this.messageInput = document.querySelector('.message-input');
+        this.messageInput = null;
+        this.editor = null;
         this.chatInput = document.querySelector('.chat-input');
         this.chatMessages = document.querySelector('.chat-messages');
         this.sendBtn = document.querySelector('.send-button');
@@ -59,8 +61,8 @@ class ChatManager {
             }
         });
 
-        this.setupEventListeners();
-        this.messageTypingIndicator();
+        // this.setupEventListeners();
+        // this.messageTypingIndicator();
         this.userTyping();
         this.userStopTyping();
     }
@@ -98,35 +100,43 @@ class ChatManager {
 
     messageTypingIndicator() {
         let typingTimeout;
-
-        this.messageInput.addEventListener('input', () => {
+        this.editor.onChange(content => { 
             if (!typingTimeout) {
                 this.socketManager.emit('typing', {
                     conversationId: this.chatHeader.dataset.id,
                     username: this.username,
                 });
+
+                clearTimeout(typingTimeout);
+
+                typingTimeout = setTimeout(() => {
+                    this.socketManager.emit('stop typing', {
+                        conversationId: this.chatHeader.dataset.id,
+                    });
+                    typingTimeout = null;
+                }, 1000);
             }
-
-            clearTimeout(typingTimeout);
-
-            typingTimeout = setTimeout(() => {
-                this.socketManager.emit('stop typing', {
-                    conversationId: this.chatHeader.dataset.id,
-                });
-                typingTimeout = null;
-            }, 1000);
         });
     }
 
     setupEventListeners() {
+        // Button click
         this.sendBtn.addEventListener('click', this.handleSendMessage);
-
-        this.messageInput.addEventListener('keypress', (e) => {
+        // Enter press
+        const editorElement = this.chatArea.querySelector('.hr-editor');
+        editorElement.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 this.handleSendMessage();
             }
         });
+
+        // this.messageInput.addEventListener('keypress', (e) => {
+        //     if (e.key === 'Enter' && !e.shiftKey) {
+        //         e.preventDefault();
+        //         this.handleSendMessage();
+        //     }
+        // });
     }
 
     getChatHeader(conversation) {
@@ -390,7 +400,9 @@ class ChatManager {
     }
 
     handleSendMessage() {
-        const content = tinymce.activeEditor.getContent();
+        let content = this.editor.getContent();
+        content = content.replace(/<br>$/, '');
+        console.log(content);
 
         if (!content) {
             return;
@@ -400,7 +412,6 @@ class ChatManager {
             msg: content,
             conversation_id: this.chatHeader.dataset.id
         };
-        console.log(data);
 
         this.socketManager.emit('I just sent a new message', data, (response) => {
             if (response.status === 'ok') {
@@ -410,8 +421,10 @@ class ChatManager {
                 this.socketManager.showErrorToast(response.error);
             }
         });
-        tinymce.activeEditor.setContent("");
-        tinymce.activeEditor.focus();
+        this.editor.setContent('');
+
+        // this.chatInput.value = '';
+        // this.chatInput.focus();
     }
 }
 

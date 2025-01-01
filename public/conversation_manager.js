@@ -259,11 +259,32 @@ class ConversationManager {
         if (welcomeScreen) {
             welcomeScreen.remove();
         }
-        this.displayInputArea();
+        // this.displayInputArea();
     }
 
     displayInputArea() {
+        console.log('displayInputArea get called');
         const inputArea = this.chatManager.chatInput;
+        if (!this.chatManager.editor) {
+            const container = document.querySelector('.input-container');
+
+            this.chatManager.editor = HREditor.init(container);
+            this.chatManager.messageTypingIndicator();
+            this.chatManager.setupEventListeners();
+
+            // new EmojiPicker({
+            //     trigger: [
+            //         {
+            //             selector: '.first-btn',
+            //             insertInto: '.hr-editor',
+            //         },
+            //     ],
+            //     closeButton: true,
+            //     specialButtons: 'green', // #008000, rgba(0, 128, 0);
+
+            // });
+        }
+
         if (inputArea) {
             if (inputArea.style.display === 'block') {
                 return;
