@@ -171,7 +171,7 @@ const HREditor = (() => {
             } else {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const media = document.createElement(event.target.accept.startsWith('image') ? 'img' : 'video');
+                    const media = document.createElement(event.target.accept.startsWith('image') ? 'img' : 'iframe');
                     media.src = e.target.result;
                     media.className = `hr-editor-${event.target.accept.startsWith('image') ? 'image' : 'video'}`;
                     if (media.tagName === 'VIDEO') media.controls = true;
@@ -204,7 +204,7 @@ const HREditor = (() => {
         toolbar.querySelector('#videoUploadButton').addEventListener('click', () => videoUploadInput.click());
         videoUploadInput.addEventListener('change', (event) => handleFileUpload(event, videoHandler));
 
-        toolbar.querySelector('#videoUrlButton').addEventListener('click', () => handleUrlInsert('video'));
+        toolbar.querySelector('#videoUrlButton').addEventListener('click', () => handleUrlInsert('iframe'));
 
         document.addEventListener('click', (event) => {
             if (!event.target.matches('#imageButton, #videoButton')) {
@@ -331,7 +331,7 @@ const HREditor = (() => {
                 editor.focus();
             },
             insertVideo(src) {
-                const video = document.createElement('video');
+                const video = document.createElement('iframe');
                 video.src = src;
                 video.controls = true;
                 video.className = 'editor-video';
