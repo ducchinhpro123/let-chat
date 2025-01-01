@@ -302,8 +302,7 @@ class ChatManager {
         return receiver;
     }
 
-    renderChatArea(conversation, messages) {
-        // this.chatArea
+    removeChatArea() {
         if (this.chatArea.querySelector('.empty-chat-state')) {
             this.chatArea.querySelector('.empty-chat-state').remove();
         }
@@ -312,6 +311,11 @@ class ChatManager {
             this.chatMessages.innerHTML = '';
             this.chatHeader.innerHTML = '';
         }
+    }
+
+    renderChatArea(conversation, messages) {
+        // this.chatArea
+        this.removeChatArea();
 
         if (!messages || messages.length === 0) {
             this.chatHeader.innerHTML = this.getChatHeader(conversation);

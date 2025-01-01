@@ -295,6 +295,7 @@ class ConversationManager {
     }
 
     handleSelectConversation(conversationId) {
+        this.chatManager.removeChatArea();
         this.showLoadingState();
         this.removeWelcomeScreen();
 
