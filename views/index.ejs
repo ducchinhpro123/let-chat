@@ -180,7 +180,18 @@
     document.addEventListener('DOMContentLoaded', function() {
         const settingBtn = document.getElementById('settings-btn');
         settingBtn.addEventListener('click', () => {
-            document.getElementById('settingsDropdown').classList.toggle('show');
+            let settingsDropdown = document.getElementById('settingsDropdown');
+
+            setTimeout(() => {
+                if (settingsDropdown.classList.contains('show')) {
+                    settingsDropdown.classList.remove('show');
+                    console.log('Removed show class:', settingsDropdown.className);
+                } else {
+                    settingsDropdown.classList.add('show');
+                    settingsDropdown.offsetHeight;
+                    console.log('Added show class:', settingsDropdown.className);
+                }
+            }, 0);
         });
 
         window.onclick = function(event) {
@@ -194,7 +205,8 @@
                 }
             }
         }
-    })
+    });
+
 </script>
 
 <script src="/socket.io/socket.io.js"></script>
