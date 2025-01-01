@@ -1,13 +1,12 @@
 tinymce.init({
   selector: 'textarea.message-input',
   menubar: false,
-  plugins: 'autoresize lists link emoticons fontsize forecolor backcolor',
+  plugins: 'autoresize lists link emoticons',
 
   toolbar: [
     'bold italic underline | fontsize forecolor backcolor | link emoticons | bullist numlist',
   ],
   font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt',
-
   placeholder: 'Type a message...',
   height: 200,
   max_height: 500,
@@ -22,5 +21,8 @@ tinymce.init({
     'FFFF00', 'Yellow',
     'FF00FF', 'Magenta',
     '00FFFF', 'Cyan',
-  ]
+  ],
+  paste_data_images: false,
+  paste_enable_default_filters: true,
+  paste_block_drop: true,
 });
