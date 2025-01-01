@@ -38,19 +38,38 @@ class AnnouncementManager {
         });
     }
 
-    handleAccept(announcement) {
+    removeAnnouncementItem(announcementId) {
+        const announcements = document.querySelector('#announcementList');
+        const announcementItem = announcements.querySelector(`.announcement-item[data-id="${announcementId}"]`);
+
+        if (announcementItem) {
+            announcementItem.remove();
+        }
+
+        if (announcements.children.length === 0) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = ` <p>No announcements yet</p> `;
+        }
+    }
+
+    handleAccept(announcement, announcementId) {
         this.socketManager.emit('I accept to be a friend', announcement, (response) => {
             if (response.status === 'ok') {
                 console.log(response);
                 this.updateAnnouncementCount(response.announcementCount);
+                this.removeAnnouncementItem(announcementId);
+                this.closeModal();
             }
         });
     }
 
-    handleRefuse(announcement) {
+    handleRefuse(announcement, announcementId) {
         this.socketManager.emit('I refuse to be a friend', announcement, (response) => {
             if (response.status === 'ok') {
                 this.updateAnnouncementCount(response.announcementCount);
+                this.removeAnnouncementItem(announcementId);
+                this.closeModal();
             }
         });
     }
@@ -69,23 +88,24 @@ class AnnouncementManager {
         if (this.announcements && this.announcements.length > 0) {
             this.announcements.forEach(announcement => {
                 const modalItem = document.createElement('div');
+                modalItem.dataset.id = announcement._id;
                 modalItem.className = 'announcement-item';
                 modalItem.innerHTML = `
-          <div class="announcement-content">
-            <p class="announcement-text">
-              <strong>${announcement.requester.username}</strong> wants to be your friend
-            </p>
-            <span class="announcement-time">${new Date(announcement.createdAt).toLocaleString()}</span>
-          </div>
-          <div class="announcement-actions">
-            <button class="accept-btn" data-id="${announcement._id}">Accept</button>
-            <button class="decline-btn" data-id="${announcement._id}">Decline</button>
-          </div>
-        `;
+                      <div class="announcement-content">
+                        <p class="announcement-text">
+                          <strong>${announcement.requester.username}</strong> wants to be your friend
+                        </p>
+                        <span class="announcement-time">${new Date(announcement.createdAt).toLocaleString()}</span>
+                      </div>
+                      <div class="announcement-actions">
+                        <button class="accept-btn" data-id="${announcement._id}">Accept</button>
+                        <button class="decline-btn" data-id="${announcement._id}">Decline</button>
+                      </div>
+                `;
                 const acceptBtn = modalItem.querySelector(`.accept-btn[data-id="${announcement._id}"]`);
                 const refuseBtn = modalItem.querySelector(`.decline-btn[data-id="${announcement._id}"]`);
-                acceptBtn.addEventListener('click', () => this.handleAccept(announcement));
-                refuseBtn.addEventListener('click', () => this.handleRefuse(announcement));
+                acceptBtn.addEventListener('click', () => this.handleAccept(announcement, announcement._id));
+                refuseBtn.addEventListener('click', () => this.handleRefuse(announcement, announcement._id));
 
                 announcements.appendChild(modalItem);
             });
