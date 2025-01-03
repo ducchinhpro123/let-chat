@@ -1,6 +1,13 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
-export function verifyLogin(req, res, next) {
+import {NextFunction, Request, Response} from 'express';
+
+import * as dotenv from 'dotenv';
+
+dotenv.config(); // Load environment variables
+
+
+export function verifyLogin(req: Request, res: Response, next: NextFunction) {
   if (!req.cookies) {
     return res.render('authentication_form', { message: 'You have to login first' });
   }
@@ -12,16 +19,27 @@ export function verifyLogin(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not found');
+    }
+
+    const decoded: JwtPayload = jwt.verify(token, jwtSecret, {
       algorithms: ['HS256'],
       maxAge: '1h',
-    });
-    const tokenExp = decoded.exp * 1000;
+    }) as JwtPayload;
+
+    if (typeof decoded === 'undefined') {
+      throw new Error('jwt is undefined');
+    }
+
+    const tokenExp = decoded.exp! * 1000;
     const fiveMinutes = 5 * 60 * 1000;
+
     if (tokenExp - Date.now() < fiveMinutes) {
       const newToken = jwt.sign(
         { user_id: decoded.user_id, username: decoded.username },
-        process.env.JWT_SECRET,
+        jwtSecret,
         { 'expiresIn': '1h' },
       );
       res.cookie('jwt', newToken, {
@@ -30,10 +48,12 @@ export function verifyLogin(req, res, next) {
         sameSite: 'strict',
       });
     }
+
     req.user = {
       id: decoded.user_id,
       username: decoded.username,
     };
+
     return next();
 
   } catch (e) {

@@ -1,10 +1,16 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
+import { IUser } from "./user";
 
 interface IFriendRelationShip extends Document {
   requester: mongoose.Types.ObjectId;
   recipient: mongoose.Types.ObjectId;
   status: 'pending' | 'accepted' | 'rejected';
   createdAt: Date;
+}
+
+export interface IFriendRelationshipPopulated extends Omit<IFriendRelationShip, 'requester' | 'recipient'> {
+  requester: Pick<IUser, '_id' | 'username'>,
+  recipient: Pick<IUser, '_id' | 'username'>,
 }
 
 const friendRelationshipSchema: Schema<IFriendRelationShip> = new Schema({

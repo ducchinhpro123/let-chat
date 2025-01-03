@@ -1,13 +1,14 @@
 class DateTimeFormatter {
-    static formatDateTime(dateString) {
+    static formatDateTime(dateString: string) {
         const date = new Date(dateString);
-        const now = new Date();
-        const diff = now - date;
-
         // If invalid date, return empty string
         if (isNaN(date)) {
             return '';
         }
+
+        const now = new Date();
+        const diff = now - date;
+
 
         // Less than 1 minute ago
         if (diff < 60 * 1000) {

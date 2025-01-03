@@ -1,7 +1,14 @@
-import jwt from 'jsonwebtoken';
+import jwt, {JwtPayload} from 'jsonwebtoken';
+import {NextFunction, Request, Response} from 'express';
+import { Model, Document, ObjectId } from 'mongoose';
+
+import * as dotenv from 'dotenv';
+
+dotenv.config(); // Load environment variables
+
 
 /* Middleware to check if a user is already logged in */
-export function checkAuthentication(req, res, next) {
+export function checkAuthentication(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies.jwt;
   // Have no token (No logged yet)
   if (!token) {
@@ -9,8 +16,12 @@ export function checkAuthentication(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not found');
+    }
+    const decodedToken = jwt.verify(token, jwtSecret);
+    req.user = decodedToken;
     // If authenticated user try to access these paths. Redirect to home page
     if (req.path === '/login' || req.path === '/register') {
       return res.redirect('/');

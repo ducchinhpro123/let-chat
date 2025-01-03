@@ -1,4 +1,5 @@
 import { body, validationResult } from 'express-validator';
+import {NextFunction, Request, Response} from 'express';
 
 export const registerValidation = [
   body('username') 
@@ -20,7 +21,7 @@ export const registerValidation = [
 
   // validationResult
 
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.render('authentication_form', {

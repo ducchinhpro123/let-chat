@@ -1,60 +1,84 @@
-import {Server} from 'socket.io';
+import {Server, Socket} from 'socket.io';
 import { Server as ServerHttp } from 'http';
 
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
-import {User} from '../models/user';
-import {Conversation} from '../models/conversation';
-import {Message} from '../models/message';
-import {FriendRelationship} from '../models/friend_relationship';
+import { IFriendRelationshipPopulated, IUser, User, Conversation, Message, FriendRelationship  } from '../models';
 
 import mongoose from 'mongoose';
 
 import { Types } from 'mongoose';
 
-interface IUser {
-    _id: Types.ObjectId,
-    username?: string,
+
+interface CustomSocket extends Socket {
+    user?: IUser
 }
 
-interface CustomSocket extends IUser {
-    user: IUser
+interface JwtPayloadUser extends JwtPayload {
+    user_id: string,
+    username: string
 }
 
+interface ServerToClientEvents {
+  noArg: () => void;
+  basicEmit: (a: number, b: string, c: Buffer) => void;
+  withAck: (d: string, callback: (e: number) => void) => void;
+  'remove message': (messageId: any) => void;
+  'friend request accepted': (message: string) => void;
+  'someone sends you an invite': (data: any) => void;
+}
+
+interface ClientToServerEvents {
+  hello: () => void;
+}
+
+interface InterServerEvents {
+  ping: () => void;
+}
+
+interface SocketData {
+  name: string;
+  age: number;
+}
 
 export function initializeSocket(server: ServerHttp) {
     const userSockets = new Map();
 
-    const io = new Server<CustomSocket>(server, {
+    const io = new Server<
+    ClientToServerEvents,
+    ServerToClientEvents,
+    InterServerEvents,
+    CustomSocket>(
+        server, {
         connectionStateRecovery: {},
     });
 
-    io.use(async (socket: CustomSocket & { handshake: { auth: { token: string } } }, next: (err?: Error) => void) => {
+    io.use(async (socket: CustomSocket, next) => {
         try {
-            const token = socket.handshake.auth?.token;
+            const token = socket.handshake.auth.token || socket.handshake.headers.token;
             if (!token) {
                 return next(new Error('Authentication error'));
             }
 
-            const decoded = jwt.verify(token, process.env.JWT_SECRET)
+            const jwtSecret = process.env.JWT_SECRET;
+            if (!jwtSecret) { throw new Error('JWT_SECRET is not found') }
 
+            const decoded = jwt.verify(token, jwtSecret) as JwtPayloadUser;
             const user = await User.findById(decoded.user_id);
+
             if (!user) {
                 return next(new Error('User not found'));
             }
             socket.user = user;
             next();
-        } catch (e) {
-            console.error(e);
-            if (e.name === 'TokenExpiredError') {
-                socket.emit('session_expired', '/users/login');
-            }
-            // next(e);
+
+        } catch (error) {
+            return next(new Error('Authentication error'));
         }
     });
 
-    io.on('connection', async (socket) => {
-        console.log(`${socket.user.username} is connected`);
+    io.on('connection', async (socket: CustomSocket) => {
+        console.log(`${socket.user?.username} is connected`);
 
         socket.on('user:connect', (userId) => {
             userSockets.set(userId, socket.id);
@@ -65,7 +89,7 @@ export function initializeSocket(server: ServerHttp) {
             try {
 
                 const conversations = await Conversation.find({
-                    'participants.user': socket.user._id
+                    'participants.user': socket.user?._id
                 }).sort({updatedAt: -1})
                     .populate('latestMessage')
                     .populate({ 
@@ -137,8 +161,7 @@ export function initializeSocket(server: ServerHttp) {
 
             } catch (e) {
                 console.error(e);
-                console.error(e.message);
-                return callback({status: 'error', error: e.message});
+                return callback({status: 'error', error: (e as Error).message});
             }
         });
 
@@ -151,9 +174,10 @@ export function initializeSocket(server: ServerHttp) {
                 }
 
                 await Message.findByIdAndDelete(messageId);
-
                 io.to(conversationId).emit('remove message', {messageId: messageId});
+
                 return callback({status: 'ok'});
+
             } catch (e) {
                 console.error(e);
                 return callback({status: 'error', error: 'Internal Server Error'});
@@ -169,7 +193,7 @@ export function initializeSocket(server: ServerHttp) {
 
                 const conversation = await Conversation.findOne({
                     _id: conversation_id,
-                    'participants.user': socket.user._id // Ensure user is a participant
+                    'participants.user': socket.user?._id // Ensure user is a participant
                 });
 
                 // const membersCount = ;
@@ -179,7 +203,7 @@ export function initializeSocket(server: ServerHttp) {
                 }
 
                 const messages = await Message.find({conversation: conversation_id})
-                    .populate('sender', 'username');
+                    .populate<{ sender: IUser }>('sender', 'username');
 
                 // Formatted message for client uses
                 const formattedMessages = messages.map(message => ({
@@ -189,7 +213,7 @@ export function initializeSocket(server: ServerHttp) {
                         _id: message.sender._id,
                         username: message.sender.username
                     },
-                    isCurrentUser: message.sender._id.toString() === socket.user._id.toString(),
+                    isCurrentUser: message.sender._id.toString() === socket.user?._id.toString(),
                     createdAt: new Date(message.createdAt).toLocaleTimeString('en-US', {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -257,12 +281,12 @@ export function initializeSocket(server: ServerHttp) {
                 if (!data || !data._id) return callback({status: 'error', error: 'Invalid data'});
 
                 const annoucementId = data._id;
-                const refusingUser = socket.user._id;
+                const refusingUser = socket.user?._id;
 
                 const announcement = await FriendRelationship.findByIdAndUpdate(
                     {
                         _id: annoucementId,
-                        recipient: acceptingUser,
+                        recipient: refusingUser,
                         status: 'pending'
                     },
                     {
@@ -307,7 +331,7 @@ export function initializeSocket(server: ServerHttp) {
                 }
 
                 const annoucementId = data._id;
-                const acceptingUser = socket.user._id; // Current User
+                const acceptingUser = socket.user?._id; // Current User
 
                 const announcement = await FriendRelationship.findByIdAndUpdate(
                     {
@@ -333,11 +357,13 @@ export function initializeSocket(server: ServerHttp) {
                             }
                         ]
                     }
-                );
+                ).exec();
 
                 if (!announcement) {
                     return callback({status: 'error', error: 'Friend request not found or already processed'});
                 }
+
+                const populatedAnnouncement = announcement as unknown as IFriendRelationshipPopulated;
 
                 console.log(announcement);
 
@@ -358,7 +384,7 @@ export function initializeSocket(server: ServerHttp) {
                 ]);
 
                 io.to(userSockets.get(announcement.requester._id))
-                    .emit('friend request accepted', `${announcement.recipient.username} has accepted your friend request`);
+                    .emit('friend request accepted', `${populatedAnnouncement.recipient.username} has accepted your friend request`);
 
                 const announcementsCount = await FriendRelationship.find(
                     {
@@ -369,14 +395,14 @@ export function initializeSocket(server: ServerHttp) {
 
                 return callback({
                     status: 'ok', 
-                    message: `You are now friend with ${announcement.requester.username}`,
+                    message: `You are now friend with ${populatedAnnouncement.requester.username}`,
                     announcementId: announcement._id,
                     announcementCount: announcementsCount
                 });
 
             } catch (e) {
                 console.error(e);
-                return callback({status: 'error', message: e.message});
+                return callback({status: 'error', message: (e as Error).message});
             }
         });
 
@@ -386,15 +412,10 @@ export function initializeSocket(server: ServerHttp) {
                     return callback({status: 'error', message: 'Conversation Id is invalid'});
                 }
 
-                const conversation = await Conversation.findById(conversationId);
-                if (!conversation) {
-                    return callback({status: 'error', message: 'Conversation does not exist'});
-                }
+                await Conversation.findByIdAndDelete(conversationId);
 
                 // Remove all messages assigned to this conversation.
                 await Message.deleteMany({ conversation: conversationId });
-                // Then remove conversation
-                await Conversation.deleteOne(conversation);
 
                 return callback({status: 'ok'});
 
@@ -407,7 +428,7 @@ export function initializeSocket(server: ServerHttp) {
         socket.on('give me my announcements', async (data, callback) => {
             try {
                 const announcements = await FriendRelationship.find({
-                    recipient: socket.user._id,
+                    recipient: socket.user?._id,
                     status: 'pending',
                 }).populate('requester', 'username')
                     .populate('recipient', 'username')
@@ -417,7 +438,7 @@ export function initializeSocket(server: ServerHttp) {
 
             } catch (e) {
                 console.error(e);
-                return callback({status: 'error', message: e.message});
+                return callback({status: 'error', message: (e as Error).message});
             }
         });
 
@@ -439,7 +460,7 @@ export function initializeSocket(server: ServerHttp) {
                     name: conversationName,
                     type: Boolean(isPrivate) ? 'private' : 'public',
                     participants: [{
-                        user: socket.user._id,
+                        user: socket.user?._id,
                         role: 'admin',
                         joinedAt: new Date()
                     }],
@@ -468,15 +489,15 @@ export function initializeSocket(server: ServerHttp) {
 
                 const users = await User.find({
                     username: new RegExp(usernameSearch, 'i'),
-                    _id: {$ne: socket.user._id}
+                    _id: {$ne: socket.user?._id}
                 }).select('username status')
                     .limit(10)
                     .lean();
 
                 const friendships = await FriendRelationship.find({
                     $or: [
-                        {requester: socket.user._id},
-                        {recipient: socket.user._id},
+                        {requester: socket.user?._id},
+                        {recipient: socket.user?._id},
                     ]
                 });
 
@@ -500,14 +521,14 @@ export function initializeSocket(server: ServerHttp) {
                 }
 
                 const friendShip = new FriendRelationship({
-                    requester: socket.user._id,
+                    requester: socket.user?._id,
                     recipient: user._id,
                     status: 'pending',
                     createdAt: new Date()
                 });
 
                 const existingFriendShip = await FriendRelationship.findOne({
-                    requester: socket.user._id,
+                    requester: socket.user?._id,
                     recipient: user._id,
                     status: 'pending'
                 });
@@ -519,7 +540,7 @@ export function initializeSocket(server: ServerHttp) {
                 }
 
                 io.to(userSockets.get(userId)).emit('someone sends you an invite', {
-                    from: socket.user._id,
+                    from: socket.user?._id,
                     invitation: friendShip,
                     timestamp: new Date()
                 });
@@ -543,7 +564,7 @@ export function initializeSocket(server: ServerHttp) {
                 socket.to(data.conversationId).emit('user stop typing');
             } catch (e) {
                 console.error(e);
-                return callback({status: 'error', error: e.message});
+                return callback({status: 'error', error: (e as Error).message});
             }
         });
 
@@ -552,7 +573,7 @@ export function initializeSocket(server: ServerHttp) {
                 socket.to(data.conversationId).emit('user typing', {username: data.username});
             } catch (e) {
                 console.error(e);
-                return callback({status: 'error', error: e.message});
+                return callback({status: 'error', error: (e as Error).message});
             }
         });
 
@@ -572,7 +593,7 @@ export function initializeSocket(server: ServerHttp) {
                     type: 'private',
                     participants: {
                         $all: [
-                            {$elemMatch: {user: socket.user._id}},
+                            {$elemMatch: {user: socket.user?._id}},
                             {$elemMatch: {user: friendId}},
                         ],
                         $size: 2
@@ -583,9 +604,9 @@ export function initializeSocket(server: ServerHttp) {
                 if (!conversation) {
                     const newConversation = await Conversation.create({
                         type: 'private',
-                        name: `${yourFriend.username}, ${socket.user.username}`,
+                        name: `${yourFriend.username}, ${socket.user?.username}`,
                         participants: [
-                            {user: socket.user._id},
+                            {user: socket.user?._id},
                             {user: friendId}
                         ],
                     });
@@ -603,7 +624,7 @@ export function initializeSocket(server: ServerHttp) {
 
                 const messages = await Message.find({
                      conversation: conversation._id,
-                }).populate('sender', 'username').sort({createdAt: 1}).limit(50);
+                }).populate<{ sender: IUser }>('sender', 'username').sort({createdAt: 1}).limit(50).exec();
 
                 const formattedMessages = messages.map(message => ({
                     _id: message._id,
@@ -612,7 +633,7 @@ export function initializeSocket(server: ServerHttp) {
                         _id: message.sender._id,
                         username: message.sender.username
                     },
-                    isCurrentUser: message.sender._id.toString() === socket.user._id.toString(),
+                    isCurrentUser: message.sender._id.toString() === socket.user?._id.toString(),
                     createdAt: new Date(message.createdAt).toLocaleTimeString('en-US', {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -628,7 +649,7 @@ export function initializeSocket(server: ServerHttp) {
 
             } catch (e) {
                 console.error(e);
-                return callback({status: 'error', error: e.message});
+                return callback({status: 'error', error: (e as Error).message});
             }
         });
 
@@ -645,7 +666,7 @@ export function initializeSocket(server: ServerHttp) {
 
                 const conversation = await Conversation.findOne({
                     _id: conversation_id,
-                    'participants.user': socket.user._id
+                    'participants.user': socket.user?._id
                 });
 
                 if (!conversation) return callback({
@@ -657,7 +678,7 @@ export function initializeSocket(server: ServerHttp) {
                 const message = new Message({
                     conversation: conversation_id,
                     content: formattedMsg,
-                    sender: socket.user._id,
+                    sender: socket.user?._id,
                     createdAt: new Date()
                 });
 
@@ -667,7 +688,7 @@ export function initializeSocket(server: ServerHttp) {
                     updatedAt: new Date()
                 });
 
-                await message.populate('sender', 'username');
+                const populatedMessage = await message.populate<{ sender: IUser }>('sender', 'username');
 
                 const formattedMessage = {
                     _id: message._id,
@@ -677,7 +698,7 @@ export function initializeSocket(server: ServerHttp) {
                         minute: '2-digit',
                     }),
                     sender: {
-                        username: message.sender.username
+                        username: populatedMessage.sender.username
                     },
                 }
 

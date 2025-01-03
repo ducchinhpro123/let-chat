@@ -55,7 +55,7 @@ class ConversationManager {
 
     showConfirmDialog(title: string, message: string) {
         return new Promise((resolve) => {
-            const dialog = document.createElement('div');
+            const dialog = document.createElement('div') as HTMLElement;
             dialog.className = 'confirm-dialog';
             dialog.innerHTML = `
             <div class="confirm-dialog-content">
@@ -76,8 +76,8 @@ class ConversationManager {
             };
 
             if (dialog) {
-                dialog.querySelector('.cancel-btn').onclick = () => handleConfirm(false);
-                dialog.querySelector('.confirm-btn').onclick = () => handleConfirm(true);
+                dialog.querySelector('.cancel-btn')! as HTMLButtonElement["onclick"] = () => handleConfirm(false);
+                dialog.querySelector('.confirm-btn')!.onclick = () => handleConfirm(true);
             }
         });
     }

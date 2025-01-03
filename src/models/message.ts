@@ -1,10 +1,15 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
+import { IUser } from "./user";
 
 export interface IMessage extends Document {
   conversation: mongoose.Types.ObjectId;
-  sender: mongoose.Types.ObjectId;
+  sender: mongoose.Types.ObjectId | IUser;
   content: string;
   createdAt: Date;
+}
+
+export interface IMessagePopulated extends Omit<IMessage, 'sender'> {
+  sender: IUser;  
 }
 
 const messageSchema: Schema<IMessage> = new Schema({

@@ -1,4 +1,4 @@
-import { User } from '../models/user.js';
+import { User } from '../models';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -58,13 +58,18 @@ class UserController {
           oldInput: { username: req.body.username } 
         });
     }
+
     const payload = {
       user_id: user._id,
       username: user.username,
     };
 
     try {
-      const token = jwt.sign(payload, process.env.JWT_SECRET, { 
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        throw new Error('JWT_SECRET is not found');
+      }
+      const token = jwt.sign(payload, jwtSecret, {
         expiresIn: '1h',
         algorithm: 'HS256',
       });

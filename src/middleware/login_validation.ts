@@ -1,4 +1,5 @@
 import { body, validationResult } from 'express-validator';
+import {NextFunction, Request, Response} from 'express';
 
 export const loginValidation = [
   body('username') 
@@ -18,7 +19,7 @@ export const loginValidation = [
   .isLength({ min: 5 })
   .withMessage('password must be at least 5 characters long'),
 
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.render('authentication_form', {
@@ -31,3 +32,4 @@ export const loginValidation = [
     next();
   }
 ]
+
