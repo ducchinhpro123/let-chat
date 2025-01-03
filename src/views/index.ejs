@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="/style/styles.css">
+    <link rel="stylesheet" href="/style/hr-editor.css">
+
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+</head>
+
+<body>
+    <input type="hidden" value="<%= user.username %>" id="username-hidden">
+    <input type="hidden" value="<%= user.id %>" id="userid-hidden">
+
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="user-profile">
+                <div class="profile-header">
+                    <div class="avatar-container">
+                        <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=<%= user.username %>" alt="Avatar"
+                            class="popup-avatar">
+                        <span class="status-indicator"></span>
+                    </div>
+                    <h3 id="username">
+                        <%= user.username %>
+                    </h3>
+                    <div class="settings-dropdown">
+                        <button id="settings-btn" class="settings-btn">
+                            <i class="fas fa-cog"></i>
+                        </button>
+
+                        <div class="dropdown-content" id="settingsDropdown">
+                            <a href="/profile"> <i class="fas fa-user-alt"></i>Profile</a>
+
+                            <!-- <button class="announcement-btn"><i class="fas fa-bell"></i>Announcement</button> -->
+                            <button class="announcement-btn">
+                                <div class="notification-wrapper">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="notification-badge" id="announcement-count"></span>
+                                </div>
+                                Announcement
+                            </button>
+
+                            <button class="your-friend-btn"><i class="far fa-address-book"></i>Your friends</button>
+                            <button class="new-conversation-btn">new conversation</button>
+                            <form action="/users/logout" method="POST" class="logout-form">
+                                <button type="submit" class="logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="conversation-list">
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="main-chat">
+
+            <div class="welcome-screen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">💬</div>
+                    <h2>Welcome, <%= user.username %>
+                    </h2>
+                    <p>Select a conversation to start messaging</p>
+                    <div class="welcome-time">
+                        <span>12/12/24</span>
+                    </div>
+                </div>
+            </div>
+            <div class="conversations-loading"></div>
+            <div class="chat-header"> </div>
+            <div class="chat-messages"> </div>
+            <div class="typing-indicator">
+                <div class="typing-text"></div>
+                <div class="dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <div class="input-container">
+                    <button class="send-button">send</button>
+                    <!-- <button class="first-btn">emoji picker</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Friends Modal -->
+    <div id="friendsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Your Friends</h2>
+                <button class="close-friends">&times;</button>
+            </div>
+            <div class="modal-search">
+                <input type="text" id="friendSearch" placeholder="Search friends...">
+            </div>
+            <div id="friendsList" class="friends-list">
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div id="announcementModal" class="modal">
+        <div class="modal-content">
+            <button class="close-ann">&times;</button>
+            <h2>Announcements</h2>
+            <div id="announcementList">
+                <div calssName="announcement-item ">
+                    <p>Invite</p>
+                </div>
+                <!-- Announcements will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Modal -->
+    <div class="modal" id="inviteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Invite Friends</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-friends">
+                    <input type="text" placeholder="Search friends..." id="friendSearch">
+                    <button class="perform-search-user">Search</button>
+                </div>
+                <div class="friends-list">
+                    <div class="friend-item">
+                        <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=<%= user.username %>" alt="Avatar"
+                            class="friend-avatar">
+                        <div class="friend-info">
+                            <div class="friend-name">username </div>
+                            <div class="friend-status">Status</div>
+                        </div>
+                        <button class="invite-friend-btn">
+                            Invite
+                        </button>
+                    </div>
+                    <!-- Friends will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for new conversation -->
+    <div id="newConversationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Conversation</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modalName">Modal name</label>
+                    <input type="text" id="modalName" placeholder="Enter modal name...">
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label for="isConversationPrivate">Is private?</label>
+                        <input type="checkbox" id="isConversationPrivate" name="isConversationPrivate">
+                    </div>
+                    <small class="form-hint">Click to mark this channel as private, other people can't search your
+                        channel</small>
+                </div>
+                <button class="confirm-new-conversation">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const settingBtn = document.getElementById('settings-btn');
+            settingBtn.addEventListener('click', () => {
+                let settingsDropdown = document.getElementById('settingsDropdown');
+
+                setTimeout(() => {
+                    if (settingsDropdown.classList.contains('show')) {
+                        settingsDropdown.classList.remove('show');
+                    } else {
+                        settingsDropdown.classList.add('show');
+                        settingsDropdown.offsetHeight;
+                    }
+                }, 0);
+            });
+
+            window.onclick = function (event) {
+                if (!event.target.matches('.settings-btn') && !event.target.matches('.settings-btn *')) {
+                    const dropdowns = document.getElementsByClassName('dropdown-content');
+                    for (let i = 0; i < dropdowns.length; i++) {
+                        const openDropdown = dropdowns[i];
+                        if (openDropdown.classList.contains('show')) {
+                            openDropdown.classList.remove('show');
+                        }
+                    }
+                }
+            }
+        });
+
+    </script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="main.ts" type="module"></script>
+    <script src="main.js" type="module"></script>
+    <script src="conversation_manager.js" type="module"></script>
+
+    <!-- <script src="vanillaEmojiPicker.js"></script> -->
+
+    <script>
+        const clockElement = document.querySelector('.welcome-time');
+        function updateClock() {
+            if (clockElement) {
+                clockElement.innerHTML = new Date().toLocaleTimeString();
+            }
+        }
+
+        setInterval(() => {
+            updateClock();
+        }, 1000);
+    </script>
+
+
+    <script type="application/javascript" src="/javascripts/hr-editor.js"></script>
+    <script type="application/javascript" src="/javascripts/vanillaEmojiPicker.js"></script>
+
+    <!-- <script> -->
+    <!--     console.log('init emojii'); -->
+    <!--     const container = document.querySelector('.hr-editor'); -->
+
+    <!--     new EmojiPicker({ -->
+    <!--         trigger: [ -->
+    <!--             { -->
+    <!--                 selector: '.first-btn', -->
+    <!--                 insertInto: null -->
+    <!--             }, -->
+    <!--         ], -->
+    <!--         closeButton: true, -->
+    <!--         specialButtons: 'green', // #008000, rgba(0, 128, 0); -->
+    <!--         onEmojiSelect: (emoji) => { -->
+    <!--             console.log('onEmojiSelect'); -->
+    <!--             console.log(emoji); -->
+    <!--         } -->
+    <!--     }); -->
+    <!-- </script> -->
+
+</body>
+
+</html>

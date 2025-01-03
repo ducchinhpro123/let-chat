@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon app.js",
-    "build": "webpack --config webpack.config.js",
-    "start": "node app.js"
+    "dev": "npx tsx --env-file=.env --watch  src/app.ts",
+    "start": "node app.js",
+    "watch": "tsc --watch"
   },
   "author": "Vo Duc Chinh",
   "license": "MIT",
@@ -20,6 +20,17 @@
   },
   "devDependencies": {
     "@socket.io/cluster-adapter": "^0.2.2",
+    "@types/bcrypt": "^5.0.2",
+    "@types/connect-flash": "^0.0.40",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/express": "^5.0.0",
+    "@types/express-session": "^1.18.1",
+    "@types/http-errors": "^2.0.4",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/mongoose": "^5.11.96",
+    "@types/morgan": "^1.9.9",
+    "@types/socket.io": "^3.0.1",
+    "@types/socket.io-client": "^1.4.36",
     "bcrypt": "^5.1.1",
     "connect-flash": "^0.1.1",
     "dotenv": "^16.4.7",
@@ -34,6 +45,7 @@
     "socket.io": "^4.8.1",
     "terser-webpack-plugin": "^5.3.11",
     "tinymce": "^7.6.0",
+    "typescript": "^5.7.2",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1"
   }
