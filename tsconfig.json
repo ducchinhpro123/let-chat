@@ -12,17 +12,8 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["node", "mongoose"],
-    "baseUrl": "./src",
-    "paths": {
-      "*": ["*", "node_modules/*"]
-    }
+    "types": ["node", "mongoose"]
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "src/public/typescript/**/*.ts"]
 }

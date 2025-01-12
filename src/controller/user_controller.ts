@@ -51,7 +51,7 @@ class UserController {
       { status: 'online' }
     );
 
-    const decodedPassword = await bcrypt.compare(password, user.password);
+    const decodedPassword = await bcrypt.compare(password, user.password!);
     if (!decodedPassword) {
         return res.status(401).render('authentication_form', { 
           message: 'Incorrect credentials', 

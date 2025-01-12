@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon ./src/app.ts",
-    "build": "tsc --build",
+    "dev": "concurrently \"npx tsx ./src/app.ts\" \"npm run watch:client\"",
+    "build:server": "tsc --build",
+    "build": "npm run build:server && npm run build:client",
     "start": "node ./dist/app.js",
-    "watch": "tsc --watch"
+    "watch:server": "tsc --watch",
+    "build:client": "webpack --config webpack.config.mjs",
+    "watch:client": "webpack --config webpack.config.mjs --watch",
+    "watch": "concurrently \"npm run watch:server\" \"npm run watch:client\""
   },
   "author": "Vo Duc Chinh",
   "license": "MIT",
@@ -17,7 +21,8 @@
     "debug": "~2.6.9",
     "ejs": "3.1.10",
     "express": "^5.0.1",
-    "http-errors": "~1.6.3"
+    "http-errors": "~1.6.3",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@socket.io/cluster-adapter": "^0.2.2",
@@ -33,6 +38,7 @@
     "@types/socket.io": "^3.0.1",
     "@types/socket.io-client": "^1.4.36",
     "bcrypt": "^5.1.1",
+    "concurrently": "^9.1.2",
     "connect-flash": "^0.1.1",
     "dotenv": "^16.4.7",
     "express-session": "^1.18.1",
@@ -46,6 +52,7 @@
     "socket.io": "^4.8.1",
     "terser-webpack-plugin": "^5.3.11",
     "tinymce": "^7.6.0",
+    "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "webpack": "^5.97.1",

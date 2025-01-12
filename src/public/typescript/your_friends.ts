@@ -1,6 +1,6 @@
-import ChatManager from 'public/typescript/chat_manager.js';
-import SocketManager from "public/typescript/socket_manager";
-import ConversationManager from "public/typescript/conversation_manager";
+import ChatManager from './chat_manager';
+import SocketManager from "./socket_manager";
+import ConversationManager from "./conversation_manager";
 
 class YourFriends {
     socketManager: SocketManager;

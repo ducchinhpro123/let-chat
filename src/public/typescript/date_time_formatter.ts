@@ -2,13 +2,12 @@ class DateTimeFormatter {
     static formatDateTime(dateString: string) {
         const date = new Date(dateString);
         // If invalid date, return empty string
-        if (isNaN(date)) {
+        if (isNaN(date.getTime())) {
             return '';
         }
 
         const now = new Date();
-        const diff = now - date;
-
+        const diff = now.getTime() - date.getTime();
 
         // Less than 1 minute ago
         if (diff < 60 * 1000) {
@@ -58,7 +57,7 @@ class DateTimeFormatter {
         });
     }
 
-    static formatUserTime(dateString) {
+    static formatUserTime(dateString: string) {
         const date = new Date(dateString);
 
         // Return time in user's local timezone

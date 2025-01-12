@@ -2,3 +2,6 @@ node_modules/
 .env
 .idea/
 .azure/
+./dist/
+.ycm_extra_conf.py
+./src/public/javascripts/
